@@ -4,6 +4,7 @@ function setup() {
 
 let x = 400;
 let y = 395;
+let speed = 1;
 
 function star(x,y,s) {
   fill(255);
@@ -206,30 +207,46 @@ function star(x,y,s) {
       ellipse(x , y - 100 * s, 150 * s, 150 * s);
       }
       
-  
-  
-  
-  
-  
-  let speed = 1;
+    
 
 function draw() {
   background(25, 25, 112);
 
-    //moon
-    fill(255);
+  
+  //moon at the bottom
     noStroke();
-    ellipse(130,100,100,100);
-    fill(25, 25, 112);
-    ellipse(170,100,100,100);
+      //moon base
+      fill(245,245,245);
+      ellipse(400,900, 1000,1000);
 
+      //holes
+    push();
+    translate(230, 470);
+    rotate(2.9);
+      fill(192,192,192);
+      ellipse(0, 0, 90, 60);
+    pop();
+
+    push();
+    translate(400, 500);
+    rotate();
+      fill(192,192,192);
+      ellipse(0, 0, 90, 70);
+    pop();
+
+    push();
+    translate(580, 480);
+    rotate(0.3);
+      fill(192,192,192);
+      ellipse(0,0, 90, 60);
+    pop();
 
     //stars
     star(220,300,1.2);
     star(100,450,1);
     star(650,90,1.3);
     star(750,340,1.2);
-    star(540,450,0.8);
+    star(80,50,0.8);
     star(560,250,1.6);
     star(250,100,0.4);
     star(720,220,0.4);
