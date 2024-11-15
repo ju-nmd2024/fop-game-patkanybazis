@@ -1,10 +1,22 @@
+
+//positions
+let character_X = 400;
+let character_Y = 100;
+let landed_x = 400;
+let landed_y = 440;
+ 
+//game mechanic variables
+
+let velocity = 0.1;
+let acceleration = 0.1;
+let gameState = true;
+
+
+
 function setup() {
   createCanvas(800, 500);
+  background(25, 25, 112);
 }
-
-let x = 400;
-let y = 395;
-let speed = 1;
 
 function star(x,y,s) {
   fill(255);
@@ -14,7 +26,6 @@ function star(x,y,s) {
   triangle(x + 5 * s, y - 5 * s, x - 10 * s, y , x + 5 * s, y + 5 * s );
   triangle(x + 5 * s, y - 5 * s, x + 20 * s, y , x + 5 * s, y + 5 * s );
   }
-  
   
   
   function character(x,y,s) {
@@ -207,64 +218,77 @@ function star(x,y,s) {
       ellipse(x , y - 100 * s, 150 * s, 150 * s);
       }
       
-    
 
 function draw() {
-  background(25, 25, 112);
-
-  
-  //moon at the bottom
-    noStroke();
-      //moon base
-      fill(245,245,245);
-      ellipse(400,900, 1000,1000);
-
-      //holes
-    push();
-    translate(230, 470);
-    rotate(2.9);
-      fill(192,192,192);
-      ellipse(0, 0, 90, 60);
-    pop();
-
-    push();
-    translate(400, 500);
-    rotate();
-      fill(192,192,192);
-      ellipse(0, 0, 90, 70);
-    pop();
-
-    push();
-    translate(580, 480);
-    rotate(0.3);
-      fill(192,192,192);
-      ellipse(0,0, 90, 60);
-    pop();
-
-    //stars
-    star(220,300,1.2);
-    star(100,450,1);
-    star(650,90,1.3);
-    star(750,340,1.2);
-    star(80,50,0.8);
-    star(560,250,1.6);
-    star(250,100,0.4);
-    star(720,220,0.4);
-    star(50,230,0.4);
-    star(310,415,0.4);
-    star(510,60,0.4);
-
-    character(x, y, 0.5);
-
-  
-    if (y > 100) {
-        y = y - speed;
-    }
-   
-
-
-  
  
+  //BACKGROUND ELEMENTS
 
+
+    //moon at the bottom
+      noStroke();
+        //moon base
+        fill(245,245,245);
+        ellipse(400, 900, 1000, 1000);
+
+        //holes
+      push();
+      translate(230, 470);
+      rotate(2.9);
+        fill(192,192,192);
+        ellipse(0, 0, 90, 60);
+      pop();
+
+      push();
+      translate(400, 500);
+      rotate();
+        fill(192,192,192);
+        ellipse(0, 0, 90, 70);
+      pop();
+
+      push();
+      translate(580, 480);
+      rotate(0.3);
+        fill(192,192,192);
+        ellipse(0,0, 90, 60);
+      pop();
+
+      //stars
+      star(220,300,1.2);
+      star(100,450,1);
+      star(650,90,1.3);
+      star(750,340,1.2);
+      star(80,50,0.8);
+      star(560,250,1.6);
+      star(250,100,0.4);
+      star(720,220,0.4);
+      star(50,230,0.4);
+      star(310,415,0.4);
+      star(510,60,0.4);
+
+
+    //GAME MECHANICS
+
+    character(character_X, character_Y, 0.5);
+
+    
+
+    /* if (keyIsDown(32) && y = y) {
+      y = y - 10;
+
+    }
+    
+    while ( ) */
+  
+   if (keyIsDown(32)) {
+      y = y + 10;
+ 
+    } else {
+     
+    }         
+
+  
 
 }
+
+
+
