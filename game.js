@@ -39,6 +39,7 @@ function setup() {
         screens: {
             menu: () => {
                 background_elements();
+                kitty.flame = true;
                 kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15;
                 kitty.draw()
 
