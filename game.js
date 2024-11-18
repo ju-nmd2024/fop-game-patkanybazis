@@ -5,9 +5,17 @@
  */
 let stars = {};
 
+let kitty;
+
+/**
+ *
+ * @type {{ground: number, ceiling: number}}
+ */
+let border = {}
+
 
 function setup() {
-    createCanvas(800,500);
+    createCanvas(900,600);
     frameRate(30)
 
     stars = {
@@ -30,15 +38,20 @@ function setup() {
         collection: []  // the collection of stars
     }
 
+    border = {
+        ground: height - 100,
+        ceiling: 95
+    }
+
+
     for (let i = 0; i < stars.number; i++) {
         let star_options = Star.generate(true);
         stars.collection.push(new Star(star_options.x, star_options.y, star_options.size, star_options.alpha, star_options.speed));
     }
+}
 
-
-
-    console.log(stars.collection[0].size);
-
+function resetSettings() {
+    kitty = new Character(width / 2, 400, 0.35);
 }
 
 
@@ -57,25 +70,25 @@ function background_elements() {
         noStroke();
         //moon base
         fill(245,245,245);
-        ellipse(400, 900, 1000, 1000);
+        ellipse(width / 2, height + 400, 1000, 1000);
 
         //holes
         push();
-        translate(230, 470);
+        translate(width / 2 - 170, height - 30);
         rotate(2.9);
         fill(192,192,192);
         ellipse(0, 0, 90, 60);
         pop();
 
         push();
-        translate(400, 500);
+        translate(width / 2, height);
         rotate();
         fill(192,192,192);
         ellipse(0, 0, 90, 70);
         pop();
 
         push();
-        translate(580, 480);
+        translate(width / 2 + 180, height - 20);
         rotate(0.3);
         fill(192,192,192);
         ellipse(0,0, 90, 60);
