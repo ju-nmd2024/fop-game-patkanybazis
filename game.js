@@ -1,10 +1,30 @@
+let speed;                // the speed of the object
+let a;                    // the acceleration of the rocket (really the strength of the rocket)
+let g;                    // gravitational constant (really the strength of gravity)
+
+/**
+ *
+ * @type {{level: number, consumption: number}}
+ */
+let fuel = {};            // fuel data (level, consumption)
+let fatal_v;              // the fatal landing velocity
+
+let land_v;               // landing velocity
+let score;                // final score
+let highScore;            // the highest score (I got it entirely from the snake p5.js example)
+let bounce;               // the degree of bouncing from the ceiling
+
+
 
 /**
  *
  * @type {{number: number, size: {small: {min: number, max: number}, big: {min: number, max: number}}, big_probability: number, speed: {measure: number, fluctuation: number}, collection: Star[]}}
  */
 let stars = {};
-
+/**
+ *
+ * @type {Character}
+ */
 let kitty;
 
 /**
@@ -32,6 +52,22 @@ function setup() {
     border = {
         ground: height - 100,
         ceiling: 95
+    }
+
+    // I just set the game settings/behaviour up here
+    // it is important to specify EVERYTHING here
+    // because we call this function when the user
+    // wants to reload the game to reset everything
+    g = 0.15
+    a = 0.1
+
+    fuel.consumption = 0.5;
+    fatal_v = 1.2;
+    bounce = 10; //boink
+
+    highScore = getItem('space kitty high score');
+    if (highScore === null) {
+        highScore = 0;
     }
 
     screen = {
@@ -97,10 +133,89 @@ function setup() {
                 pop()
             },
             game: () => {
+                background_elements();
+                kitty.draw();
 
+                if (kitty.y >= border.ceiling && kitty.y < border.ground) { //if this is true, the game is on
+                    if (kitty.y === border.ceiling) { // checks if the kitty is on the ceiling
+                        speed = bounce*g; // if it is, then boink
+                    }
+                    if (keyIsDown(32)) { // if the space key is pressed, the rocket accelerates
+                        if (kitty.y !== border.ceiling) speed -= a; // without the if, the speed would be (minus) *a* when kitty touches the top
+                        fuel.level -= fuel.consumption; // this really just lowers the fuel level
+                    } else {
+                        speed += g; // the free fall formula v = g * t, but since t (the time between frames) is constant, this will work eventually (don't ask why, I'm not a physics girly)
+                    }
+                    kitty.y += (speed > 0 ? 1 : -1) * speed**2; // as, when we take the square of a real number, will be positive, but we want to maintain the polarity, so I multiply it by 1 if it is positive or -1 if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed)
+                } else if (kitty.y === border.ground) {
+                    land_v = Math.floor(speed * 100) / 100; // eventually, this way, I get rounding with 2 decimal points
+                    if (land_v <= fatal_v) {
+                        score = Math.floor(fuel.level + 1000/land_v); // I wanted to take the remaining fuel into account for the score
+                        kittyBase.died = false;
+                    } else {
+                        score = 0;
+                        kittyBase.died = true;
+                    }
+                    highScore = max(score, highScore); // here, we see if our score or the high score is bigger...
+                    storeItem('space kitty high score', highScore); // ...and we save the bigger one into the browser's storage
+                    screen.name = "gameOver";
+                }
+                // in case kitty goes over the top or below the ground, we need to correct it by pulling it back
+                if (kitty.y < border.ceiling) {
+                    kitty.y = border.ceiling;
+                } else if (kitty.y > border.ground) {
+                    kitty.y = border.ground;
+                }
             },
             gameOver: () => {
+                background_elements();
+                kitty.draw();
 
+                push()
+                fill("white")
+                textFont("ArcadeClassic")
+                textSize(50)
+                textStyle("bold")
+                textAlign("center", "center")
+                text("Game Over", width / 2, 150)
+                pop()
+
+                if (kittyBase.died) {
+                    push()
+                    fill("white")
+                    textFont("ArcadeClassic")
+                    textSize(35)
+                    // textStyle("bold")
+                    textAlign("center", "center")
+                    text("Kitty didn't survive\nthe landing 😭", width / 2, 225)
+                    pop()
+                } else {
+                    push()
+                    fill("white")
+                    textFont("ArcadeClassic")
+                    textSize(35)
+                    textStyle("bold")
+                    textAlign("center", "center")
+                    text("Score", width / 2, 225)
+                    pop()
+
+                    push()
+                    fill("white")
+                    textFont("ArcadeClassic")
+                    textSize(25)
+                    textAlign("center", "center")
+                    text(score, width / 2, 255)
+                    pop()
+
+                    push()
+                    fill("white")
+                    textFont("ArcadeClassic")
+                    textSize(25)
+                    textStyle("bold")
+                    textAlign("center", "center")
+                    text("High Score", width / 2, 300)
+                    pop()
+                }
             }
         }
     }
@@ -131,10 +246,7 @@ function setup() {
         died: null
     }
 
-
-
     resetSettings()
-
 
     for (let i = 0; i < stars.number; i++) {
         let star_options = Star.generate(true);
@@ -188,6 +300,43 @@ function background_elements() {
 
 
 
+    }
+}
+
+// here, I handle the key-presses
+// since every key is for different things
+// in different modes/screens, I need to
+// specify which key does what in which screen
+function keyPressed() {
+    switch (keyCode) {
+        case 32: // SPACE
+            switch (screen.name) {
+                // like in the menu, if I press SPACE, it will change the screen to "game"
+                case "menu":
+                    screen.name = "game";
+                    break;
+            }
+            break;
+        case 82: // R
+            switch (screen.name) {
+                case "gameOver":
+                    screen.name = "game"
+                    resetSettings() // as we know, it resets the values
+                    break;
+                case "game":
+                    resetSettings()
+                    break;
+            }
+            break;
+        case 77: // M
+            switch (screen.name) {
+                case "gameOver":
+                case "game":
+                    screen.name = "menu"
+                    resetSettings()
+                    break;
+            }
+            break;
     }
 }
 
