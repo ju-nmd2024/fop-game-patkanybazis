@@ -14,7 +14,9 @@ let score;                // final score
 let highScore;            // the highest score (I got it entirely from the snake p5.js example)
 let bounce;               // the degree of bouncing from the ceiling
 
-
+let timestamp;            // time elapsed at the last frame
+let lastX;                // x position of the object at the last frame
+let lastY;                // y position of the object at the last frame
 
 /**
  *
@@ -66,9 +68,6 @@ function setup() {
     bounce = 10; //boink
 
     highScore = getItem('space kitty high score');
-    if (highScore === null) {
-        highScore = 0;
-    }
 
     screen = {
         name: "menu",
@@ -134,6 +133,8 @@ function setup() {
             },
             game: () => {
                 background_elements();
+                dialDisplays()
+                kitty.flame = keyIsDown(32) && fuel.level > 0;
                 kitty.draw();
 
                 if (kitty.y >= border.ceiling && kitty.y < border.ground) { //if this is true, the game is on
@@ -169,6 +170,7 @@ function setup() {
             },
             gameOver: () => {
                 background_elements();
+                dialDisplays()
                 kitty.draw();
 
                 push()
@@ -215,6 +217,17 @@ function setup() {
                     textAlign("center", "center")
                     text("High Score", width / 2, 300)
                     pop()
+
+                    push()
+                    fill("black")
+                    stroke("white")
+                    strokeWeight(3)
+                    textFont("Comic Sans MS")
+                    textSize(25)
+                    textStyle("bold")
+                    textAlign("center", "center")
+                    text("High Score", width / 2, 300)
+                    pop()
                 }
             }
         }
@@ -252,16 +265,29 @@ function setup() {
         let star_options = Star.generate(true);
         stars.collection.push(new Star(star_options.x, star_options.y, star_options.size, star_options.alpha, star_options.speed));
     }
+
+    timestamp = millis();
+    lastX = kitty.x;
+    lastY = kitty.y;
 }
 
 function resetSettings() {
     kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal", "normal");
+    fuel.level = 100; // this should be 100!! (full tank)
+    speed = -2; // with this, we can set the initial speed (like with a negative number, kitty would bounce up a bit at the start of the game)
+
 }
 
 
 
 function draw() {
     screen.screens[screen.name]();
+    let timeBetweenFrames = (millis() - timestamp) / 1000; // this gets the time between this and the last frame (in case of a lag)
+    fill("grey")
+    text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - lastX)**2 + (kitty.y - lastY)**2)/timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
+    lastX = kitty.x; // this saves the current x pos for the velocity calc
+    lastY = kitty.y; // this saves the current y pos for the velocity calc
+    timestamp = millis(); // this saves the current time for the velocity calc
 }
 
 
@@ -313,6 +339,7 @@ function keyPressed() {
             switch (screen.name) {
                 // like in the menu, if I press SPACE, it will change the screen to "game"
                 case "menu":
+                    resetSettings()
                     screen.name = "game";
                     break;
             }
@@ -339,6 +366,15 @@ function keyPressed() {
             break;
     }
 }
+
+
+
+function dialDisplays() {
+    new Bar("Fuel", 50, height - (height - border.ground) / 2 - 15, "rainbow_gr", fuel.level, 100, fuel.level === 100 || fuel.level === 0 ? 0 : 1, [5, 10, 25, 50, 75]).draw() // to toFixed gives back the number with the specified amount of decimal digits
+    new Bar("Speed", width - 250, height - (height - border.ground) / 2 - 15, "rainbow_rg", Math.abs(speed*10), 60, 1, [fatal_v*10, 30]).draw() // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
+
+}
+
 
 /**
  *
@@ -646,4 +682,76 @@ class Character {
     }
 }
 
+class Bar {
+    constructor(name, x, y, colour, value, scale, decimal, markers = []) {
+        this.name = name;
+        this.x = x;
+        this.colour = colour;
+        this.value = value;
+        this.scale = scale;
+        this.decimal = decimal;
+        this.markers = markers;
 
+    }
+    draw() {
+        // the "shell" of the bar
+        push()
+        strokeCap("round")
+        strokeWeight(1)
+        stroke("black")
+        fill("white")
+        rect(this.x - 0.5, this.y - 0.5, 200 + 1, 20 + 1) // I added 1 to the height and width because of the stroke
+        pop()
+        // the "progress" part of the bar
+        push()
+        noStroke()
+        switch (this.colour) {
+            case "rainbow_gr": // green to red
+                colorMode("hsb")
+                fill(this.value < 0 ? 0 : this.value > this.scale ? 120 : this.value/this.scale*120, 100, 100) // the red - yellow - green colours are between 0 and 120° (that's why 120 is there)
+                break
+            case "rainbow_rg": // red to green
+                colorMode("hsb")
+                fill(120-(this.value < 0 ? 0 : this.value > this.scale ? 120 : this.value/this.scale*120), 100, 100) // "120-" is because we invert the colours here
+                break
+            default:
+                fill(this.colour)
+                break
+        }
+        rect(this.x, this.y, this.value < 0 ? 0 : this.value > this.scale ? 200 : this.value/this.scale*200, 20) // 200 is the width of the bar and data/scale shows how many of the max value is the given value
+        pop()
+        push()
+        textAlign("center", "top")
+        textSize(15)
+        fill("white")
+        text(this.name, this.x + 100, this.y - 20)
+        pop()
+        push()
+        textAlign("center", "top")
+        textSize(20)
+        fill("white")
+        text(this.value.toFixed(this.decimal), this.x + 100, this.y + 37.5)
+        pop()
+        markerCreate(0) // the smallest value
+        markerCreate(this.scale) // the biggest value
+        for (const marker of this.markers) {
+            markerCreate(marker, true)
+        }
+
+        function markerCreate (marker, divider = false) {
+            if (divider){
+                push()
+                strokeWeight(0.5)
+                stroke("black")
+                line(this.x + 200 * Number(marker) / this.scale, this.y + 17.5, this.x + Number(marker) * 200 / this.scale, this.y + 2.5) // I gave a 2.5 pixel gap on both the top and the bottom of the bar (20[bar height] - 2.5 = 17.5, 0+2.5 = 2.5)
+                pop()
+            }
+            push()
+            textSize(10)
+            textAlign("center", "bottom")
+            fill("white")
+            text(marker, this.x + 200 * Number(marker) / this.scale, this.y + 32.5) // 200 is the bar width, and marker / scale is really the percentage of the position in the bar
+            pop()
+        }
+    }
+}
