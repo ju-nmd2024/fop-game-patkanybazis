@@ -9,6 +9,12 @@ let kitty;
 
 /**
  *
+ * @type {{x: number, y: number, died: boolean}}
+ */
+let kittyBase = {};
+
+/**
+ *
  * @type {{ground: number, ceiling: number}}
  */
 let border = {}
@@ -43,6 +49,16 @@ function setup() {
         ceiling: 95
     }
 
+    kittyBase = {
+        x: width/2,
+        y: (border.ground + border.ceiling) / 2,
+        died: null
+    }
+
+
+
+    resetSettings()
+
 
     for (let i = 0; i < stars.number; i++) {
         let star_options = Star.generate(true);
@@ -51,13 +67,14 @@ function setup() {
 }
 
 function resetSettings() {
-    kitty = new Character(width / 2, 400, 0.35);
+    kitty = new Character(kittyBase.x, kittyBase.y, 0.35);
 }
 
 
 
 function draw() {
     background_elements();
+    kitty.draw()
 }
 
 
@@ -173,10 +190,13 @@ class Star {
 }
 
 class Character {
-    constructor(x, y, size) {
+    constructor(x, y, size, arm, eye, flame = false) {
         this.x = x;
         this.y = y;
         this.size = size;
+        this.arm = arm;
+        this.eye = eye;
+        this.flame = flame;
     }
 
     draw () {
@@ -186,48 +206,48 @@ class Character {
         // jetpack bag
         noStroke();
         fill(105,105,105);
-        rect(this.x - 45 * this.s , this.y - 50 * this.s, 90 * this.s, 100 * this.s, 10 * this.s);
+        rect(this.x - 45 * this.size , this.y - 50 * this.size, 90 * this.size, 100 * this.size, 10 * this.size);
 
         //left mini rocket
         noStroke();
         fill(128,128,128);
-        rect(this.x - 85 * this.s , this.y - 50 * this.s, 40 * this.s, 100 * this.s, 0, 0,10 * this.s, 10 * this.s);
+        rect(this.x - 85 * this.size , this.y - 50 * this.size, 40 * this.size, 100 * this.size, 0, 0,10 * this.size, 10 * this.size);
 
         fill(255,0,0);
-        triangle(this.x - 85 * this.s, this.y - 43 * this.s, this.x - 65 * this.s, this.y - 90 * this.s, this.x - 45 * this.s,this.y - 43 * this.s);
-        rect(this.x - 85 * this.s, this.y, 40 * this.s , 10 * this.s ); //didn'T work  (y) * s removed for moving
-        rect(this.x - 85 * this.s, this.y + 20 * this.s, 40 * this.s, 10 * this.s );
+        triangle(this.x - 85 * this.size, this.y - 43 * this.size, this.x - 65 * this.size, this.y - 90 * this.size, this.x - 45 * this.size,this.y - 43 * this.size);
+        rect(this.x - 85 * this.size, this.y, 40 * this.size , 10 * this.size ); //didn'T work  (y) * s removed for moving
+        rect(this.x - 85 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size );
 
 
         //right mini rocket
         noStroke();
         fill(128,128,128);
-        rect(this.x + 45 * this.s, this.y - 50 * this.s, 40 * this.s, 100 * this.s, 0, 0,10 * this.s, 10 * this.s);
+        rect(this.x + 45 * this.size, this.y - 50 * this.size, 40 * this.size, 100 * this.size, 0, 0,10 * this.size, 10 * this.size);
 
         fill(255,0,0);
-        triangle(this.x + 85 * this.s, this.y - 43 * this.s, this.x + 65 * this.s, this.y - 90 * this.s, this.x + 45 * this.s,this.y - 43 * this.s);
-        rect(this.x + 45 * this.s, this.y, 40 * this.s, 10 * this.s );
-        rect(this.x + 45 * this.s, this.y + 20 * this.s, 40 * this.s, 10 * this.s );
+        triangle(this.x + 85 * this.size, this.y - 43 * this.size, this.x + 65 * this.size, this.y - 90 * this.size, this.x + 45 * this.size,this.y - 43 * this.size);
+        rect(this.x + 45 * this.size, this.y, 40 * this.size, 10 * this.size );
+        rect(this.x + 45 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size );
 
         //tail
         fill(34,34,34);
         noStroke();
-        ellipse(this.x + 30 * this.s, this.y + 70 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 40 * this.s, this.y + 90 * this.s, 25 * this.s, 25 * this.s);
-        ellipse(this.x + 55 * this.s, this.y + 70 * this.s, 35 * this.s, 35  * this.s);
-        ellipse(this.x + 60 * this.s, this.y + 95 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 78 * this.s, this.y + 78 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 80 * this.s, this.y + 100 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 100 * this.s, this.y + 80 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 100 * this.s, this.y + 100 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 120 * this.s, this.y + 70 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 125 * this.s, this.y + 95 * this.s, 35 * this.s, 35 * this.s);
-        ellipse(this.x + 135 * this.s, this.y + 60 * this.s, 30 * this.s, 30 * this.s);
-        ellipse(this.x + 145 * this.s, this.y + 70* this.s, 30 * this.s, 30 * this.s);
-        ellipse(this.x + 145 * this.s, this.y + 85 * this.s, 30 * this.s, 30 * this.s);
-        ellipse(this.x + 150 * this.s, this.y + 53 * this.s, 30 * this.s, 30 * this.s);
-        ellipse(this.x + 158 * this.s, this.y + 68 * this.s, 30 * this.s, 30 * this.s);
-        ellipse(this.x + 164 * this.s, this.y + 52 * this.s, 20 * this.s, 20 * this.s);
+        ellipse(this.x + 30 * this.size, this.y + 70 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 40 * this.size, this.y + 90 * this.size, 25 * this.size, 25 * this.size);
+        ellipse(this.x + 55 * this.size, this.y + 70 * this.size, 35 * this.size, 35  * this.size);
+        ellipse(this.x + 60 * this.size, this.y + 95 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 78 * this.size, this.y + 78 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 80 * this.size, this.y + 100 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 100 * this.size, this.y + 80 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 100 * this.size, this.y + 100 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 120 * this.size, this.y + 70 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 125 * this.size, this.y + 95 * this.size, 35 * this.size, 35 * this.size);
+        ellipse(this.x + 135 * this.size, this.y + 60 * this.size, 30 * this.size, 30 * this.size);
+        ellipse(this.x + 145 * this.size, this.y + 70* this.size, 30 * this.size, 30 * this.size);
+        ellipse(this.x + 145 * this.size, this.y + 85 * this.size, 30 * this.size, 30 * this.size);
+        ellipse(this.x + 150 * this.size, this.y + 53 * this.size, 30 * this.size, 30 * this.size);
+        ellipse(this.x + 158 * this.size, this.y + 68 * this.size, 30 * this.size, 30 * this.size);
+        ellipse(this.x + 164 * this.size, this.y + 52 * this.size, 20 * this.size, 20 * this.size);
 
 
 
@@ -237,9 +257,9 @@ class Character {
         //body
         noStroke();
         fill(220,220,220);
-        ellipse(this.x, this.y, 60* this.s, 120* this.s);
+        ellipse(this.x, this.y, 60* this.size, 120* this.size);
 
-        switch (arm) {
+        switch (this.arm) {
             case "normal":
                 break;
             case "happy":
@@ -255,7 +275,7 @@ class Character {
 
         noStroke();
         fill(255);
-        rect(-50* this.s, -60* this.s, 30* this.s, 60* this.s, 15* this.s);
+        rect(-50* this.size, -60* this.size, 30* this.size, 60* this.size, 15* this.size);
         pop();
 
         //left arm base
@@ -265,18 +285,18 @@ class Character {
 
         noStroke();
         fill(255);
-        rect(-50* this.s, 0* this.s, 30* this.s, 60* this.s, 15* this.s);
+        rect(-50* this.size, 0* this.size, 30* this.size, 60* this.size, 15* this.size);
         pop();
 
         //left strap
         noStroke();
         fill(128,128,128);
-        rect(this.x - 30 * this.s , this.y - 45 * this.s, 20 * this.s, 70 * this.s, 15 * this.s);
+        rect(this.x - 30 * this.size , this.y - 45 * this.size, 20 * this.size, 70 * this.size, 15 * this.size);
 
         //right strap
         noStroke();
         fill(128,128,128);
-        rect(this.x + 10 * this.s, this.y - 45 * this.s, 20 * this.s, 70 * this.s, 15 * this.s);
+        rect(this.x + 10 * this.size, this.y - 45 * this.size, 20 * this.size, 70 * this.size, 15 * this.size);
 
         //left arm top
         push();
@@ -285,10 +305,10 @@ class Character {
 
         noStroke();
         fill(0);
-        rect(-35 * this.s, 10 * this.s, 30 * this.s, 60* this.s, 15* this.s);
+        rect(-35 * this.size, 10 * this.size, 30 * this.size, 60* this.size, 15* this.size);
         fill(255);
-        rect(-35* this.s,30* this.s, 30* this.s, 40* this.s, 15* this.s); //used 2 rectangles to show the hand
-        rect(-35* this.s, 30* this.s, 30* this.s, 20* this.s);
+        rect(-35* this.size,30* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
+        rect(-35* this.size, 30* this.size, 30* this.size, 20* this.size);
         pop();
 
         //right arm top
@@ -298,28 +318,28 @@ class Character {
 
         noStroke();
         fill(0);
-        rect(-35* this.s,-70* this.s, 30* this.s, 60* this.s, 15* this.s);
+        rect(-35* this.size,-70* this.size, 30* this.size, 60* this.size, 15* this.size);
         fill(255);
-        rect(-35* this.s,-70* this.s, 30* this.s, 40* this.s, 15* this.s); //used 2 rectangles to show the hand
-        rect(-35* this.s,-50* this.s, 30* this.s, 20* this.s);
+        rect(-35* this.size,-70* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
+        rect(-35* this.size,-50* this.size, 30* this.size, 20* this.size);
         pop();
 
 
         //right leg
         noStroke();
         fill(255);
-        rect(this.x + 5* this.s, this.y + 30* this.s, 30* this.s, 60* this.s, 15* this.s);
+        rect(this.x + 5* this.size, this.y + 30* this.size, 30* this.size, 60* this.size, 15* this.size);
         fill(0); //used 2 rectangles to show the foot
-        rect(this.x + 5* this.s, this.y + 60* this.s, 30* this.s, 30* this.s, 15* this.s);
-        rect(this.x + 5* this.s, this.y + 55* this.s, 30* this.s, 20* this.s);
+        rect(this.x + 5* this.size, this.y + 60* this.size, 30* this.size, 30* this.size, 15* this.size);
+        rect(this.x + 5* this.size, this.y + 55* this.size, 30* this.size, 20* this.size);
 
         //left leg
         noStroke();
         fill(255);
-        rect(this.x - 35* this.s, this.y + 30* this.s, 30* this.s, 60* this.s, 15* this.s);
+        rect(this.x - 35* this.size, this.y + 30* this.size, 30* this.size, 60* this.size, 15* this.size);
         fill(0); //used 2 rectangles to show the foot
-        rect(this.x - 35* this.s, this.y + 60* this.s, 30* this.s, 30* this.s, 15* this.s);
-        rect(this.x - 35* this.s, this.y + 55* this.s, 30* this.s, 20* this.s);
+        rect(this.x - 35* this.size, this.y + 60* this.size, 30* this.size, 30* this.size, 15* this.size);
+        rect(this.x - 35* this.size, this.y + 55* this.size, 30* this.size, 20* this.size);
 
 
         //head
@@ -327,25 +347,25 @@ class Character {
         stroke(0,0,0);
         strokeWeight(4);
         fill(0);
-        ellipse(this.x, this.y - 80 * this.s, 120 * this.s , 90 * this.s);
+        ellipse(this.x, this.y - 80 * this.size, 120 * this.size , 90 * this.size);
 
         //left ear
         beginShape();
-        vertex(this.x-60* this.s, this.y - 85* this.s);
-        bezierVertex(this.x - 60 * this.s, this.y - 85 * this.s, this.x - 50 * this.s, this.y - 200 * this.s, this.x - 10 * this.s, this.y - 125 * this.s);
+        vertex(this.x-60* this.size, this.y - 85* this.size);
+        bezierVertex(this.x - 60 * this.size, this.y - 85 * this.size, this.x - 50 * this.size, this.y - 200 * this.size, this.x - 10 * this.size, this.y - 125 * this.size);
         endShape();
 
         //right ear
         beginShape();
-        vertex(this.x+60* this.s, this.y-75* this.s);
-        bezierVertex(this.x + 60 * this.s, this.y - 95 * this.s, this.x + 50 * this.s, this.y - 200 * this.s, this.x + 10 * this.s, this.y - 125 * this.s);
+        vertex(this.x+60* this.size, this.y-75* this.size);
+        bezierVertex(this.x + 60 * this.size, this.y - 95 * this.size, this.x + 50 * this.size, this.y - 200 * this.size, this.x + 10 * this.size, this.y - 125 * this.size);
         endShape();
 
 
 
         //eyes
 
-        switch (eye) {
+        switch (this.eye) {
             case "normal":
                 break;
             case "happy":
@@ -357,24 +377,24 @@ class Character {
         // left eye base
         fill(255,255,0);
         noStroke();
-        ellipse(this.x - 25 * this.s, this.y - 80 * this.s, 45 * this.s , 45 * this.s);
+        ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
 
 
         //left eye pupil
         fill(0,0,0);
         noStroke();
-        ellipse(this.x - 25 * this.s, this.y - 80 * this.s, 20 * this.s , 35 * this.s);
+        ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
 
         //right eye base
         fill(255,255,0);
         noStroke();
-        ellipse(this.x + 25 * this.s, this.y - 80 * this.s, 45 * this.s , 45 * this.s);
+        ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
 
 
         //right eye pupil
         fill(0,0,0);
         noStroke();
-        ellipse(this.x + 25 * this.s, this.y - 80 * this.s, 20 * this.s , 35 * this.s);
+        ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
 
 
 
@@ -384,17 +404,17 @@ class Character {
 
         //helmet
         stroke(167, 199, 231);
-        strokeWeight(6*this.s);
+        strokeWeight(6*this.size);
         fill(70, 130, 180, 40);
-        ellipse(this.x , this.y - 100 * this.s, 150 * this.s, 150 * this.s);
+        ellipse(this.x , this.y - 100 * this.size, 150 * this.size, 150 * this.size);
 
         //flame
-        if (flame) {
+        if (this.flame) {
             push()
             noStroke()
             fill("orange")
-            triangle(this.x - 77 * this.s,this.y + 48 * this.s,this.x - 53 * this.s,this.y + 48 * this.s,this.x - 65 * this.s,this.y + 85 * this.s)
-            triangle(this.x + 53 * this.s,this.y + 48 * this.s,this.x + 77 * this.s,this.y + 48 * this.s,this.x + 65 * this.s,this.y + 85 * this.s)
+            triangle(this.x - 77 * this.size,this.y + 48 * this.size,this.x - 53 * this.size,this.y + 48 * this.size,this.x - 65 * this.size,this.y + 85 * this.size)
+            triangle(this.x + 53 * this.size,this.y + 48 * this.size,this.x + 77 * this.size,this.y + 48 * this.size,this.x + 65 * this.size,this.y + 85 * this.size)
             pop()
         }
 
