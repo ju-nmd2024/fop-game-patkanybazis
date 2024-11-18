@@ -18,11 +18,91 @@ let kittyBase = {};
  * @type {{ground: number, ceiling: number}}
  */
 let border = {}
+/**
+ *
+ * @type {{name: string, screens: object}}
+ */
+let screen = {};
 
 
 function setup() {
     createCanvas(900,600);
     frameRate(30)
+
+    border = {
+        ground: height - 100,
+        ceiling: 95
+    }
+
+    screen = {
+        name: "menu",
+        screens: {
+            menu: () => {
+                background_elements();
+                kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15;
+                kitty.draw()
+
+                push()
+                fill("white")
+                noStroke()
+                textAlign("center", "center")
+                textFont("ArcadeClassic")
+                textSize(100)
+                textStyle("bold")
+                text("Space   Kitty", width/2, height/2 - 200)
+                pop()
+
+                push()
+                fill("white")
+                noStroke()
+                textAlign("center", "center")
+                textFont("ArcadeClassic")
+                textSize(20)
+                textStyle("bold")
+                textAlign("center", "center")
+                text("Made   by", width / 2, 385)
+                pop()
+
+                push()
+                fill("white")
+                noStroke()
+                textAlign("center", "center")
+                textFont("ArcadeClassic")
+                textSize(30)
+                textAlign("center", "center")
+                text("Adrienn   Ratonyi", width / 2, 415)
+                pop()
+
+                push()
+                fill("white")
+                noStroke()
+                textAlign("center", "center")
+                textFont("ArcadeClassic")
+                textSize(18)
+                textAlign("center", "center")
+                text("Jonkoping University\n2024", width / 2, 460)
+                pop()
+
+                push()
+                fill("white")
+                noStroke()
+                textAlign("center", "center")
+                textFont("ArcadeClassic")
+                textSize(25)
+                textAlign("center", "center")
+                if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
+                    text("Press   SPACE   to   play", width / 2, height/2 - 140)
+                }
+                pop()
+            },
+            game: () => {
+
+            },
+            gameOver: () => {
+
+            }
+        }
+    }
 
     stars = {
         number: 300,
@@ -44,11 +124,6 @@ function setup() {
         collection: []  // the collection of stars
     }
 
-    border = {
-        ground: height - 100,
-        ceiling: 95
-    }
-
     kittyBase = {
         x: width/2,
         y: (border.ground + border.ceiling) / 2,
@@ -67,14 +142,13 @@ function setup() {
 }
 
 function resetSettings() {
-    kitty = new Character(kittyBase.x, kittyBase.y, 0.35);
+    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal", "normal");
 }
 
 
 
 function draw() {
-    background_elements();
-    kitty.draw()
+    screen.screens[screen.name]();
 }
 
 
@@ -421,4 +495,5 @@ class Character {
         pop()
     }
 }
+
 
