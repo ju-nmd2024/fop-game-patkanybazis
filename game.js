@@ -13,10 +13,11 @@ let land_v;               // landing velocity
 let score;                // final score
 let highScore;            // the highest score (I got it entirely from the snake p5.js example)
 let bounce;               // the degree of bouncing from the ceiling
-
-let timestamp;            // time elapsed at the last frame
-let lastX;                // x position of the object at the last frame
-let lastY;                // y position of the object at the last frame
+/**
+ *
+ * @type {{time: number, x: number, y: number}}
+ */
+let last = {};
 
 /**
  *
@@ -35,7 +36,7 @@ let stars = {};
 let kitty;
 
 /**
- *
+ * kitty location
  * @type {{x: number, y: number, died: boolean}}
  */
 let kittyBase = {};
@@ -71,13 +72,13 @@ function setup() {
     a = 0.1
 
     fuel.consumption = 0.5;
-    fatal_v = 1.2;
+    fatal_v = 1.2; //if it is over the value then kitty dies :(
     bounce = 10; //boink
 
-    highScore = getItem('space kitty high score');
+    highScore = getItem('space kitty high score'); //gets the highscore from the browser's storage
 
 
-    screen.name = "menu"
+    screen.name = "menu" //sets the default screen to menu
 
     stars = {
         number: 300,
@@ -98,11 +99,16 @@ function setup() {
         },
         collection: []  // the collection of stars
     }
-
+    // the values kitty resets to
     kittyBase = {
         x: width/2,
         y: (border.ground + border.ceiling) / 2,
         died: null
+    }
+
+    bars = {
+        fuel: new Bar("Fuel", 25, 40, "rainbow_gr", 100, 1, [5, 10, 25, 50, 75]), // to toFixed gives back the number with the specified amount of decimal digits
+        speed: new Bar("Speed", width - 225, 40, "rainbow_rg", 60, 1, [fatal_v*10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
     }
 
     resetSettings()
@@ -112,10 +118,12 @@ function setup() {
         let star_options = Star.generate(true);
         stars.collection.push(new Star(star_options.x, star_options.y, star_options.size, star_options.alpha, star_options.speed));
     }
+
+    //this is just for velocity calculation if something is not working
     if (debug) {
-        timestamp = millis();
-        lastX = kitty.x;
-        lastY = kitty.y;
+        last.time = millis(); // this initialises the last time
+        last.x = kitty.x;     // this initialises the last x
+        last.y = kitty.y;     // this initialises the last y
     }
 }
 
@@ -132,12 +140,12 @@ function draw() {
     screen.screens[screen.name]();
 
     if (debug) {
-        let timeBetweenFrames = (millis() - timestamp) / 1000; // this gets the time between this and the last frame (in case of a lag)
+        let timeBetweenFrames = (millis() - last.time) / 1000; // this gets the time between this and the last frame (in case of a lag)
         fill("grey")
-        text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - lastX)**2 + (kitty.y - lastY)**2)/timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
-        lastX = kitty.x; // this saves the current x pos for the velocity calc
-        lastY = kitty.y; // this saves the current y pos for the velocity calc
-        timestamp = millis(); // this saves the current time for the velocity calc
+        text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - last.x)**2 + (kitty.y - last.y)**2)/timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
+        last.x = kitty.x; // this saves the current x pos for the velocity calc
+        last.y = kitty.y; // this saves the current y pos for the velocity calc
+        last.time = millis(); // this saves the current time for the velocity calc
     }
 }
 
@@ -260,6 +268,8 @@ function gameScreens() {
             pop()
 
             if (kittyBase.died) {
+                kitty.eye = "dead"
+                kitty.arm = "dead"
                 push()
                 fill("white")
                 textFont("ArcadeClassic")
@@ -269,6 +279,8 @@ function gameScreens() {
                 text("Kitty   didn't   survive\nthe   landing 😭", width / 2, 225)
                 pop()
             } else {
+                kitty.eye = "happy"
+                kitty.arm = "happy"
                 push()
                 fill("white")
                 textFont("ArcadeClassic")
@@ -384,12 +396,10 @@ function keyPressed() {
 }
 
 
-
+// displays the fuel and speed bars
 function dialDisplays() {
-    bars = {
-        fuel: new Bar("Fuel", 25, 40, "rainbow_gr", fuel.level, 100, fuel.level === 100 || fuel.level === 0 ? 0 : 1, [5, 10, 25, 50, 75]), // to toFixed gives back the number with the specified amount of decimal digits
-        speed: new Bar("Speed", width - 225, 40, "rainbow_rg", Math.abs(speed*10), 60, 1, [fatal_v*10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
-    }
+    bars.fuel.set(fuel.level)
+    bars.speed.set(Math.abs(speed*10))
     bars.fuel.draw()
     bars.speed.draw()
 }
@@ -546,68 +556,78 @@ class Character {
 
         switch (this.arm) {
             case "normal":
+                //right arm base
+                push();
+                translate(this.x,this.y);
+                rotate(2);
+
+                noStroke();
+                fill(255);
+                rect(-50* this.size, -60* this.size, 30* this.size, 60* this.size, 15* this.size);
+                pop();
+
+                //left arm base
+                push();
+                translate(this.x,this.y);
+                rotate(1.2);
+
+                noStroke();
+                fill(255);
+                rect(-50* this.size, 0* this.size, 30* this.size, 60* this.size, 15* this.size);
+                pop();
+
+                straps(this.x, this.y, this.size)
+
+                //left arm top
+                push();
+                translate(this.x,this.y);
+                rotate(1.5);
+
+                noStroke();
+                fill(0);
+                rect(-35 * this.size, 10 * this.size, 30 * this.size, 60* this.size, 15* this.size);
+                fill(255);
+                rect(-35* this.size,30* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
+                rect(-35* this.size, 30* this.size, 30* this.size, 20* this.size);
+                pop();
+
+                //right arm top
+                push();
+                translate(this.x,this.y);
+                rotate(1.7);
+
+                noStroke();
+                fill(0);
+                rect(-35* this.size,-70* this.size, 30* this.size, 60* this.size, 15* this.size);
+                fill(255);
+                rect(-35* this.size,-70* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
+                rect(-35* this.size,-50* this.size, 30* this.size, 20* this.size);
+                pop();
+
                 break;
             case "happy":
+
                 break;
             case "dead":
+
                 break;
         }
 
-        //right arm base
-        push();
-        translate(this.x,this.y);
-        rotate(2);
 
-        noStroke();
-        fill(255);
-        rect(-50* this.size, -60* this.size, 30* this.size, 60* this.size, 15* this.size);
-        pop();
 
-        //left arm base
-        push();
-        translate(this.x,this.y);
-        rotate(1.2);
+        function straps(x, y, size) {
+            //left strap
+            noStroke();
+            fill(128,128,128);
+            rect(x - 30 * size , y - 45 * size, 20 * size, 70 * size, 15 * size);
 
-        noStroke();
-        fill(255);
-        rect(-50* this.size, 0* this.size, 30* this.size, 60* this.size, 15* this.size);
-        pop();
+            //right strap
+            noStroke();
+            fill(128,128,128);
+            rect(x + 10 * size, y - 45 * size, 20 * size, 70 * size, 15 * size);
 
-        //left strap
-        noStroke();
-        fill(128,128,128);
-        rect(this.x - 30 * this.size , this.y - 45 * this.size, 20 * this.size, 70 * this.size, 15 * this.size);
+        }
 
-        //right strap
-        noStroke();
-        fill(128,128,128);
-        rect(this.x + 10 * this.size, this.y - 45 * this.size, 20 * this.size, 70 * this.size, 15 * this.size);
-
-        //left arm top
-        push();
-        translate(this.x,this.y);
-        rotate(1.5);
-
-        noStroke();
-        fill(0);
-        rect(-35 * this.size, 10 * this.size, 30 * this.size, 60* this.size, 15* this.size);
-        fill(255);
-        rect(-35* this.size,30* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
-        rect(-35* this.size, 30* this.size, 30* this.size, 20* this.size);
-        pop();
-
-        //right arm top
-        push();
-        translate(this.x,this.y);
-        rotate(1.7);
-
-        noStroke();
-        fill(0);
-        rect(-35* this.size,-70* this.size, 30* this.size, 60* this.size, 15* this.size);
-        fill(255);
-        rect(-35* this.size,-70* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
-        rect(-35* this.size,-50* this.size, 30* this.size, 20* this.size);
-        pop();
 
 
         //right leg
@@ -652,39 +672,36 @@ class Character {
 
         switch (this.eye) {
             case "normal":
+                // the normal eyes go here
+                // left eye base
+                fill(255,255,0);
+                noStroke();
+                ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
+
+
+                //left eye pupil
+                fill(0,0,0);
+                noStroke();
+                ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
+
+                //right eye base
+                fill(255,255,0);
+                noStroke();
+                ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
+
+
+                //right eye pupil
+                fill(0,0,0);
+                noStroke();
+                ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
                 break;
             case "happy":
+                // the happy eyes go here
                 break;
             case "dead":
+                // the dead eyes go here
                 break;
         }
-
-        // left eye base
-        fill(255,255,0);
-        noStroke();
-        ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
-
-
-        //left eye pupil
-        fill(0,0,0);
-        noStroke();
-        ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
-
-        //right eye base
-        fill(255,255,0);
-        noStroke();
-        ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
-
-
-        //right eye pupil
-        fill(0,0,0);
-        noStroke();
-        ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
-
-
-
-
-
 
 
         //helmet
@@ -708,17 +725,14 @@ class Character {
 }
 
 class Bar {
-    constructor(name, x, y, colour, value, scale, decimal, markers = []) {
+    constructor(name, x, y, colour, scale, decimal, markers = []) {
         this.name = name;
         this.x = x;
         this.y = y;
         this.colour = colour;
-        this.value = value;
         this.scale = scale;
         this.decimal = decimal;
         this.markers = markers;
-
-        this.draw = this.draw.bind(this);
 
     }
     draw() {
@@ -784,5 +798,9 @@ class Bar {
             text(marker, x + 200 * Number(marker) / scale, y + 32.5) // 200 is the bar width, and marker / scale is really the percentage of the position in the bar
             pop()
         }
+    }
+
+    set(value) {
+        this.value = value;
     }
 }
