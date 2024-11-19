@@ -81,7 +81,7 @@ function setup() {
     screen.name = "menu" //sets the default screen to menu
 
     stars = {
-        number: 30,
+        number: 300,
         size: {
             small: {
                 min: 1,
