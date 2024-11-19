@@ -855,7 +855,7 @@ class Bar {
             if (divider){
                 push()
                 strokeWeight(0.5)
-                stroke("black")
+                stroke(0,0,0,127)
                 line(x + 200 * Number(marker) / scale, y + 17.5, x + Number(marker) * 200 / scale, y + 2.5) // I gave a 2.5 pixel gap on both the top and the bottom of the bar (20[bar height] - 2.5 = 17.5, 0+2.5 = 2.5)
                 pop()
             }
