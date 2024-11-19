@@ -20,6 +20,11 @@ let lastY;                // y position of the object at the last frame
 
 /**
  *
+ * @type {object}
+ */
+let bars = {};
+/**
+ *
  * @type {{number: number, size: {small: {min: number, max: number}, big: {min: number, max: number}}, big_probability: number, speed: {measure: number, fluctuation: number}, collection: Star[]}}
  */
 let stars = {};
@@ -46,6 +51,8 @@ let border = {}
  */
 let screen = {};
 
+let debug = false;
+
 
 function setup() {
     createCanvas(900,600);
@@ -69,169 +76,8 @@ function setup() {
 
     highScore = getItem('space kitty high score');
 
-    screen = {
-        name: "menu",
-        screens: {
-            menu: () => {
-                background_elements();
-                kitty.flame = true;
-                kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15;
-                kitty.draw()
 
-                push()
-                fill("white")
-                noStroke()
-                textAlign("center", "center")
-                textFont("ArcadeClassic")
-                textSize(100)
-                textStyle("bold")
-                text("Space   Kitty", width/2, height/2 - 200)
-                pop()
-
-                push()
-                fill("white")
-                noStroke()
-                textAlign("center", "center")
-                textFont("ArcadeClassic")
-                textSize(20)
-                textStyle("bold")
-                textAlign("center", "center")
-                text("Made   by", width / 2, 385)
-                pop()
-
-                push()
-                fill("white")
-                noStroke()
-                textAlign("center", "center")
-                textFont("ArcadeClassic")
-                textSize(30)
-                textAlign("center", "center")
-                text("Adrienn   Ratonyi", width / 2, 415)
-                pop()
-
-                push()
-                fill("white")
-                noStroke()
-                textAlign("center", "center")
-                textFont("ArcadeClassic")
-                textSize(18)
-                textAlign("center", "center")
-                text("Jonkoping University\n2024", width / 2, 460)
-                pop()
-
-                push()
-                fill("white")
-                noStroke()
-                textAlign("center", "center")
-                textFont("ArcadeClassic")
-                textSize(25)
-                textAlign("center", "center")
-                if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
-                    text("Press   SPACE   to   play", width / 2, height/2 - 140)
-                }
-                pop()
-            },
-            game: () => {
-                background_elements();
-                dialDisplays()
-                kitty.flame = keyIsDown(32) && fuel.level > 0;
-                kitty.draw();
-
-                if (kitty.y >= border.ceiling && kitty.y < border.ground) { //if this is true, the game is on
-                    if (kitty.y === border.ceiling) { // checks if the kitty is on the ceiling
-                        speed = bounce*g; // if it is, then boink
-                    }
-                    if (keyIsDown(32)) { // if the space key is pressed, the rocket accelerates
-                        if (kitty.y !== border.ceiling) speed -= a; // without the if, the speed would be (minus) *a* when kitty touches the top
-                        fuel.level -= fuel.consumption; // this really just lowers the fuel level
-                    } else {
-                        speed += g; // the free fall formula v = g * t, but since t (the time between frames) is constant, this will work eventually (don't ask why, I'm not a physics girly)
-                    }
-                    kitty.y += (speed > 0 ? 1 : -1) * speed**2; // as, when we take the square of a real number, will be positive, but we want to maintain the polarity, so I multiply it by 1 if it is positive or -1 if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed)
-                } else if (kitty.y === border.ground) {
-                    land_v = Math.floor(speed * 100) / 100; // eventually, this way, I get rounding with 2 decimal points
-                    if (land_v <= fatal_v) {
-                        score = Math.floor(fuel.level + 1000/land_v); // I wanted to take the remaining fuel into account for the score
-                        kittyBase.died = false;
-                    } else {
-                        score = 0;
-                        kittyBase.died = true;
-                    }
-                    highScore = max(score, highScore); // here, we see if our score or the high score is bigger...
-                    storeItem('space kitty high score', highScore); // ...and we save the bigger one into the browser's storage
-                    screen.name = "gameOver";
-                }
-                // in case kitty goes over the top or below the ground, we need to correct it by pulling it back
-                if (kitty.y < border.ceiling) {
-                    kitty.y = border.ceiling;
-                } else if (kitty.y > border.ground) {
-                    kitty.y = border.ground;
-                }
-            },
-            gameOver: () => {
-                background_elements();
-                dialDisplays()
-                kitty.draw();
-
-                push()
-                fill("white")
-                textFont("ArcadeClassic")
-                textSize(50)
-                textStyle("bold")
-                textAlign("center", "center")
-                text("Game Over", width / 2, 150)
-                pop()
-
-                if (kittyBase.died) {
-                    push()
-                    fill("white")
-                    textFont("ArcadeClassic")
-                    textSize(35)
-                    // textStyle("bold")
-                    textAlign("center", "center")
-                    text("Kitty didn't survive\nthe landing 😭", width / 2, 225)
-                    pop()
-                } else {
-                    push()
-                    fill("white")
-                    textFont("ArcadeClassic")
-                    textSize(35)
-                    textStyle("bold")
-                    textAlign("center", "center")
-                    text("Score", width / 2, 225)
-                    pop()
-
-                    push()
-                    fill("white")
-                    textFont("ArcadeClassic")
-                    textSize(25)
-                    textAlign("center", "center")
-                    text(score, width / 2, 255)
-                    pop()
-
-                    push()
-                    fill("white")
-                    textFont("ArcadeClassic")
-                    textSize(25)
-                    textStyle("bold")
-                    textAlign("center", "center")
-                    text("High Score", width / 2, 300)
-                    pop()
-
-                    push()
-                    fill("black")
-                    stroke("white")
-                    strokeWeight(3)
-                    textFont("Comic Sans MS")
-                    textSize(25)
-                    textStyle("bold")
-                    textAlign("center", "center")
-                    text("High Score", width / 2, 300)
-                    pop()
-                }
-            }
-        }
-    }
+    screen.name = "menu"
 
     stars = {
         number: 300,
@@ -260,15 +106,17 @@ function setup() {
     }
 
     resetSettings()
+    gameScreens()
 
     for (let i = 0; i < stars.number; i++) {
         let star_options = Star.generate(true);
         stars.collection.push(new Star(star_options.x, star_options.y, star_options.size, star_options.alpha, star_options.speed));
     }
-
-    timestamp = millis();
-    lastX = kitty.x;
-    lastY = kitty.y;
+    if (debug) {
+        timestamp = millis();
+        lastX = kitty.x;
+        lastY = kitty.y;
+    }
 }
 
 function resetSettings() {
@@ -282,52 +130,220 @@ function resetSettings() {
 
 function draw() {
     screen.screens[screen.name]();
-    let timeBetweenFrames = (millis() - timestamp) / 1000; // this gets the time between this and the last frame (in case of a lag)
-    fill("grey")
-    text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - lastX)**2 + (kitty.y - lastY)**2)/timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
-    lastX = kitty.x; // this saves the current x pos for the velocity calc
-    lastY = kitty.y; // this saves the current y pos for the velocity calc
-    timestamp = millis(); // this saves the current time for the velocity calc
+
+    if (debug) {
+        let timeBetweenFrames = (millis() - timestamp) / 1000; // this gets the time between this and the last frame (in case of a lag)
+        fill("grey")
+        text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - lastX)**2 + (kitty.y - lastY)**2)/timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
+        lastX = kitty.x; // this saves the current x pos for the velocity calc
+        lastY = kitty.y; // this saves the current y pos for the velocity calc
+        timestamp = millis(); // this saves the current time for the velocity calc
+    }
+}
+
+function gameScreens() {
+    screen.screens = {
+        menu: () => {
+            background_elements();
+            kitty.flame = true;
+            kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15;
+            kitty.draw()
+            moon();
+
+
+            push()
+            fill("white")
+            noStroke()
+            textAlign("center", "center")
+            textFont("ArcadeClassic")
+            textSize(100)
+            textStyle("bold")
+            text("Space   Kitty", width/2, height/2 - 200)
+            pop()
+
+            push()
+            fill("white")
+            noStroke()
+            textAlign("center", "center")
+            textFont("ArcadeClassic")
+            textSize(20)
+            textStyle("bold")
+            textAlign("center", "center")
+            text("Made   by", width / 2, 385)
+            pop()
+
+            push()
+            fill("white")
+            noStroke()
+            textAlign("center", "center")
+            textFont("ArcadeClassic")
+            textSize(30)
+            textAlign("center", "center")
+            text("Adrienn   Ratonyi", width / 2, 415)
+            pop()
+
+            push()
+            fill("white")
+            noStroke()
+            textAlign("center", "center")
+            textFont("ArcadeClassic")
+            textSize(18)
+            textAlign("center", "center")
+            text("Jonkoping University\n2024", width / 2, 460)
+            pop()
+
+            push()
+            fill("white")
+            noStroke()
+            textAlign("center", "center")
+            textFont("ArcadeClassic")
+            textSize(25)
+            textAlign("center", "center")
+            if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
+                text("Press   SPACE   to   play", width / 2, height/2 - 140)
+            }
+            pop()
+        },
+            game: () => {
+            background_elements();
+            dialDisplays()
+            kitty.flame = keyIsDown(32) && fuel.level > 0;
+            kitty.draw();
+            moon();
+
+
+            if (kitty.y >= border.ceiling && kitty.y < border.ground) { //if this is true, the game is on
+                if (kitty.y === border.ceiling) { // checks if the kitty is on the ceiling
+                    speed = bounce*g; // if it is, then boink
+                }
+                if (keyIsDown(32) && fuel.level > 0) { // if the space key is pressed, the rocket accelerates
+                    if (kitty.y !== border.ceiling) speed -= a; // without the if, the speed would be (minus) *a* when kitty touches the top
+                    fuel.level -= fuel.consumption; // this really just lowers the fuel level
+                } else {
+                    speed += g; // the free fall formula v = g * t, but since t (the time between frames) is constant, this will work eventually (don't ask why, I'm not a physics girly)
+                }
+                kitty.y += (speed > 0 ? 1 : -1) * speed**2; // as, when we take the square of a real number, will be positive, but we want to maintain the polarity, so I multiply it by 1 if it is positive or -1 if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed)
+            } else if (kitty.y === border.ground) {
+                land_v = Math.floor(speed * 100) / 100; // eventually, this way, I get rounding with 2 decimal points
+                if (land_v <= fatal_v) {
+                    score = Math.floor(fuel.level + 1000/land_v); // I wanted to take the remaining fuel into account for the score
+                    kittyBase.died = false;
+                } else {
+                    score = 0;
+                    kittyBase.died = true;
+                }
+                highScore = max(score, highScore); // here, we see if our score or the high score is bigger...
+                storeItem('space kitty high score', highScore); // ...and we save the bigger one into the browser's storage
+                screen.name = "gameOver";
+            }
+            // in case kitty goes over the top or below the ground, we need to correct it by pulling it back
+            if (kitty.y < border.ceiling) {
+                kitty.y = border.ceiling;
+            } else if (kitty.y > border.ground) {
+                kitty.y = border.ground;
+            }
+        },
+            gameOver: () => {
+            background_elements();
+            dialDisplays()
+            kitty.draw();
+            moon();
+
+
+            push()
+            fill("white")
+            textFont("ArcadeClassic")
+            textSize(50)
+            textStyle("bold")
+            textAlign("center", "center")
+            text("Game   Over", width / 2, 150)
+            pop()
+
+            if (kittyBase.died) {
+                push()
+                fill("white")
+                textFont("ArcadeClassic")
+                textSize(35)
+                // textStyle("bold")
+                textAlign("center", "center")
+                text("Kitty   didn't   survive\nthe   landing 😭", width / 2, 225)
+                pop()
+            } else {
+                push()
+                fill("white")
+                textFont("ArcadeClassic")
+                textSize(35)
+                textStyle("bold")
+                textAlign("center", "center")
+                text("Score", width / 2, 225)
+                pop()
+
+                push()
+                fill("white")
+                textFont("ArcadeClassic")
+                textSize(25)
+                textAlign("center", "center")
+                text(score, width / 2, 255)
+                pop()
+
+                push()
+                fill("white")
+                textFont("ArcadeClassic")
+                textSize(25)
+                textStyle("bold")
+                textAlign("center", "center")
+                text("High   Score", width / 2, 300)
+                pop()
+
+                push()
+                fill("white")
+                textFont("ArcadeClassic")
+                textSize(20)
+                textAlign("center", "center")
+                text(highScore, width / 2, 330)
+                pop()
+            }
+        }
+    }
 }
 
 
 function background_elements() {
     background(25, 25, 112);
     Star.display();
-    moon();
-
-    function moon() {
-        noStroke();
-        //moon base
-        fill(245,245,245);
-        ellipse(width / 2, height + 400, 1000, 1000);
-
-        //holes
-        push();
-        translate(width / 2 - 170, height - 30);
-        rotate(2.9);
-        fill(192,192,192);
-        ellipse(0, 0, 90, 60);
-        pop();
-
-        push();
-        translate(width / 2, height);
-        rotate();
-        fill(192,192,192);
-        ellipse(0, 0, 90, 70);
-        pop();
-
-        push();
-        translate(width / 2 + 180, height - 20);
-        rotate(0.3);
-        fill(192,192,192);
-        ellipse(0,0, 90, 60);
-        pop();
-
-
-
-    }
 }
+function moon() {
+    noStroke();
+    //moon base
+    fill(245,245,245);
+    ellipse(width / 2, height + 400, 1000, 1000);
+
+    //holes
+    push();
+    translate(width / 2 - 170, height - 30);
+    rotate(2.9);
+    fill(192,192,192);
+    ellipse(0, 0, 90, 60);
+    pop();
+
+    push();
+    translate(width / 2, height);
+    rotate();
+    fill(192,192,192);
+    ellipse(0, 0, 90, 70);
+    pop();
+
+    push();
+    translate(width / 2 + 180, height - 20);
+    rotate(0.3);
+    fill(192,192,192);
+    ellipse(0,0, 90, 60);
+    pop();
+
+
+
+}
+
 
 // here, I handle the key-presses
 // since every key is for different things
@@ -370,9 +386,12 @@ function keyPressed() {
 
 
 function dialDisplays() {
-    new Bar("Fuel", 50, height - (height - border.ground) / 2 - 15, "rainbow_gr", fuel.level, 100, fuel.level === 100 || fuel.level === 0 ? 0 : 1, [5, 10, 25, 50, 75]).draw() // to toFixed gives back the number with the specified amount of decimal digits
-    new Bar("Speed", width - 250, height - (height - border.ground) / 2 - 15, "rainbow_rg", Math.abs(speed*10), 60, 1, [fatal_v*10, 30]).draw() // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
-
+    bars = {
+        fuel: new Bar("Fuel", 25, 40, "rainbow_gr", fuel.level, 100, fuel.level === 100 || fuel.level === 0 ? 0 : 1, [5, 10, 25, 50, 75]), // to toFixed gives back the number with the specified amount of decimal digits
+        speed: new Bar("Speed", width - 225, 40, "rainbow_rg", Math.abs(speed*10), 60, 1, [fatal_v*10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
+    }
+    bars.fuel.draw()
+    bars.speed.draw()
 }
 
 
@@ -450,6 +469,12 @@ class Star {
 }
 
 class Character {
+    x;
+    y;
+    size;
+    arm;
+    eye;
+    flame;
     constructor(x, y, size, arm, eye, flame = false) {
         this.x = x;
         this.y = y;
@@ -686,11 +711,14 @@ class Bar {
     constructor(name, x, y, colour, value, scale, decimal, markers = []) {
         this.name = name;
         this.x = x;
+        this.y = y;
         this.colour = colour;
         this.value = value;
         this.scale = scale;
         this.decimal = decimal;
         this.markers = markers;
+
+        this.draw = this.draw.bind(this);
 
     }
     draw() {
@@ -723,34 +751,37 @@ class Bar {
         push()
         textAlign("center", "top")
         textSize(15)
+        textFont("ArcadeClassic")
         fill("white")
         text(this.name, this.x + 100, this.y - 20)
         pop()
         push()
         textAlign("center", "top")
         textSize(20)
+        textFont("ArcadeClassic")
         fill("white")
         text(this.value.toFixed(this.decimal), this.x + 100, this.y + 37.5)
         pop()
-        markerCreate(0) // the smallest value
-        markerCreate(this.scale) // the biggest value
+        markerCreate(this.x, this.y, this.scale, 0) // the smallest value
+        markerCreate(this.x, this.y, this.scale, this.scale) // the biggest value
         for (const marker of this.markers) {
-            markerCreate(marker, true)
+            markerCreate(this.x, this.y, this.scale, marker, true)
         }
 
-        function markerCreate (marker, divider = false) {
+        function markerCreate (x, y, scale, marker, divider = false) {
             if (divider){
                 push()
                 strokeWeight(0.5)
                 stroke("black")
-                line(this.x + 200 * Number(marker) / this.scale, this.y + 17.5, this.x + Number(marker) * 200 / this.scale, this.y + 2.5) // I gave a 2.5 pixel gap on both the top and the bottom of the bar (20[bar height] - 2.5 = 17.5, 0+2.5 = 2.5)
+                line(x + 200 * Number(marker) / scale, y + 17.5, x + Number(marker) * 200 / scale, y + 2.5) // I gave a 2.5 pixel gap on both the top and the bottom of the bar (20[bar height] - 2.5 = 17.5, 0+2.5 = 2.5)
                 pop()
             }
             push()
             textSize(10)
             textAlign("center", "bottom")
+            textFont("ArcadeClassic")
             fill("white")
-            text(marker, this.x + 200 * Number(marker) / this.scale, this.y + 32.5) // 200 is the bar width, and marker / scale is really the percentage of the position in the bar
+            text(marker, x + 200 * Number(marker) / scale, y + 32.5) // 200 is the bar width, and marker / scale is really the percentage of the position in the bar
             pop()
         }
     }
