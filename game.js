@@ -81,7 +81,7 @@ function setup() {
     screen.name = "menu" //sets the default screen to menu
 
     stars = {
-        number: 300,
+        number: 30,
         size: {
             small: {
                 min: 1,
@@ -128,7 +128,7 @@ function setup() {
 }
 
 function resetSettings() {
-    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "dead", "dead");
+    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal", "happy");
     fuel.level = 100; // this should be 100!! (full tank)
     speed = -2; // with this, we can set the initial speed (like with a negative number, kitty would bounce up a bit at the start of the game)
 
@@ -674,66 +674,67 @@ class Character {
             case "normal":
                 // the normal eyes go here
                 // left eye base
-                fill(255,255,0);
-                noStroke();
-                ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
+
+                normalEye(this.x - 9, this.y - 28, this.size)
+                normalEye(this.x + 9, this.y - 28, this.size)
 
 
-                //left eye pupil
-                fill(0,0,0);
-                noStroke();
-                ellipse(this.x - 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
+                function normalEye(x, y, size) {
+                    push()
+                    translate(x, y)
+                    //eye base
+                    push()
+                    fill(255,255,0);
+                    noStroke();
+                    ellipse(0 * size, 0 * size, 45 * size , 45 * size);
+                    pop()
+                    push()
+                    //eye pupil
+                    fill(0,0,0);
+                    noStroke();
+                    ellipse(0 * size, 0 * size, 20 * size , 35 * size);
+                    pop()
+                    pop()
+                }
 
-                //right eye base
-                fill(255,255,0);
-                noStroke();
-                ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 45 * this.size , 45 * this.size);
-
-
-                //right eye pupil
-                fill(0,0,0);
-                noStroke();
-                ellipse(this.x + 25 * this.size, this.y - 80 * this.size, 20 * this.size , 35 * this.size);
                 break;
             case "happy":
-                // the happy eyes go here
+                happyEye(this.x - 9, this.y -28, this.size);
+                happyEye(this.x + 9, this.y -28, this.size);
+
+                function happyEye(x, y, size){
+                    push()
+                    stroke(255,255,0);
+                    strokeWeight(4)
+                    beginShape();
+                    vertex(x - 12.5*size, y);
+                    bezierVertex(x - 12.5*size, y, x , y - 25*size, x + 12.5*size, y);
+                    endShape();
+                    pop()
+                }
                 break;
             case "dead":
-                //right eye \
-                push()
-                translate(this.x,this.y);
-                rotate(45)
-                noStroke();
-                fill(255,255,0);
-                rect(- 75 * this.size, - 68 * this.size, 40 * this.size , 10 * this.size, 6)
-                pop();
-                //right eye /
-                push()
-                translate(this.x,this.y);
-                rotate(-45)
-                noStroke();
-                fill(255,255,0);
-                rect(61 * this.size, - 26* this.size, 40 * this.size , 10 * this.size, 6)
-                pop();
-                
-                push()
-                translate(-17, 0)
-                push()
-                translate(this.x,this.y);
-                rotate(45)
-                noStroke();
-                fill(255,255,0);
-                rect(- 75 * this.size, - 68 * this.size, 40 * this.size , 10 * this.size, 6)
-                pop();
-                //right eye /
-                push()
-                translate(this.x,this.y);
-                rotate(-45)
-                noStroke();
-                fill(255,255,0);
-                rect(61 * this.size, - 26* this.size, 40 * this.size , 10 * this.size, 6)
-                pop();
-                pop()
+                deadEye(this.x - 9, this.y - 30, this.size) // left eye
+                deadEye(this.x + 9, this.y - 30, this.size) // right eye
+
+                function deadEye(x, y, size) {
+                    push()
+                    translate(x,y);
+                    rotate(45*Math.PI/180)
+                    push()
+                    noStroke();
+                    fill(255,255,0);
+                    rect(- 15* size, 0 * size, 40 * size , 10 * size, 6)
+                    pop();
+                    push()
+                    noStroke();
+                    fill(255,255,0);
+                    rect(0 * size, - 15* size, 10 * size , 40 * size, 6)
+                    pop();
+                    pop()
+                }
+
+
 
                 break;
         }
