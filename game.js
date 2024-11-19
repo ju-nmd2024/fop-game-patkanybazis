@@ -128,7 +128,7 @@ function setup() {
 }
 
 function resetSettings() {
-    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal", "normal");
+    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "dead", "dead");
     fuel.level = 100; // this should be 100!! (full tank)
     speed = -2; // with this, we can set the initial speed (like with a negative number, kitty would bounce up a bit at the start of the game)
 
@@ -276,7 +276,7 @@ function gameScreens() {
                 textSize(35)
                 // textStyle("bold")
                 textAlign("center", "center")
-                text("Kitty   didn't   survive\nthe   landing 😭", width / 2, 225)
+                text("Kitty   didn't   survive\nthe   landing", width / 2, 225)
                 pop()
             } else {
                 kitty.eye = "happy"
@@ -398,7 +398,7 @@ function keyPressed() {
 
 // displays the fuel and speed bars
 function dialDisplays() {
-    bars.fuel.set(fuel.level)
+      bars.fuel.set(fuel.level)
     bars.speed.set(Math.abs(speed*10))
     bars.fuel.draw()
     bars.speed.draw()
@@ -699,7 +699,23 @@ class Character {
                 // the happy eyes go here
                 break;
             case "dead":
-                // the dead eyes go here
+                //right eye \
+                push()
+                translate(this.x,this.y);
+                rotate(45)
+                noStroke();
+                fill(255,255,0);
+                rect(- 75 * this.size, - 68 * this.size, 40 * this.size , 10 * this.size, 6)
+                pop();
+                //right eye /
+                push()
+                translate(this.x,this.y);
+                rotate(-45)
+                noStroke();
+                fill(255,255,0);
+                rect(+90 * this.size, - 45 * this.size, 40 * this.size , 10 * this.size, 6)
+                pop();
+
                 break;
         }
 
