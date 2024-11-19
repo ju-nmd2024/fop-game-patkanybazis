@@ -128,7 +128,7 @@ function setup() {
 }
 
 function resetSettings() {
-    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "dead", "dead");
+    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal", "normal");
     fuel.level = 100; // this should be 100!! (full tank)
     speed = -2; // with this, we can set the initial speed (like with a negative number, kitty would bounce up a bit at the start of the game)
 
@@ -257,6 +257,17 @@ function gameScreens() {
             kitty.draw();
             moon();
 
+            push()
+            fill("white")
+            noStroke()
+            textAlign("center", "center")
+            textFont("ArcadeClassic")
+            textSize(25)
+            textAlign("center", "center")
+            if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
+                text("Press   R   to   restart", width / 2, height/2 -247)
+            }
+            pop()
 
             push()
             fill("white")
@@ -383,7 +394,7 @@ function keyPressed() {
                     break;
             }
             break;
-        case 77: // M
+        case 27: // ESCAPE
             switch (screen.name) {
                 case "gameOver":
                 case "game":
@@ -524,6 +535,8 @@ class Character {
         rect(this.x + 45 * this.size, this.y, 40 * this.size, 10 * this.size );
         rect(this.x + 45 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size );
 
+
+
         //tail
         fill(34,34,34);
         noStroke();
@@ -544,6 +557,15 @@ class Character {
         ellipse(this.x + 158 * this.size, this.y + 68 * this.size, 30 * this.size, 30 * this.size);
         ellipse(this.x + 164 * this.size, this.y + 52 * this.size, 20 * this.size, 20 * this.size);
 
+        //flame
+        if (this.flame) {
+            push()
+            noStroke()
+            fill("orange")
+            triangle(this.x - 77 * this.size,this.y + 48 * this.size,this.x - 53 * this.size,this.y + 48 * this.size,this.x - 65 * this.size,this.y + 85 * this.size)
+            triangle(this.x + 53 * this.size,this.y + 48 * this.size,this.x + 77 * this.size,this.y + 48 * this.size,this.x + 65 * this.size,this.y + 85 * this.size)
+            pop()
+        }
 
 
 
@@ -611,8 +633,8 @@ class Character {
                 straps(this.x, this.y, this.size);
                 break;
             case "dead":
-                straightArm(this.x-5, this.y - 15, this.size, 0);
-                straightArm(this.x+20, this.y -15, this.size, 0);
+                straightArm(this.x-2.5, this.y - 15, this.size, 15*Math.PI/180);
+                straightArm(this.x+16, this.y -18.5, this.size, 345*Math.PI/180);
                 straps(this.x, this.y, this.size);
                 break;
         }
@@ -624,10 +646,10 @@ class Character {
             rotate(rotation);
             noStroke();
             fill(0);
-            rect(-35 * size, 0 * size, 30 * size, 120* size, 15* size);
+            rect(-35 * size, 0 * size, 30 * size, 90* size, 15* size);
             fill(255);
-            rect(-35* size, 0* size, 30* size, 100* size, 15* size); //used 2 rectangles to show the hand
-            rect(-35* size, 80* size, 30* size, 20* size);
+            rect(-35* size, 0* size, 30* size, 70* size, 15* size); //used 2 rectangles to show the hand
+            rect(-35* size, 50* size, 30* size, 20* size);
             pop();
             pop()
 
@@ -766,15 +788,6 @@ class Character {
         fill(70, 130, 180, 40);
         ellipse(this.x , this.y - 100 * this.size, 150 * this.size, 150 * this.size);
 
-        //flame
-        if (this.flame) {
-            push()
-            noStroke()
-            fill("orange")
-            triangle(this.x - 77 * this.size,this.y + 48 * this.size,this.x - 53 * this.size,this.y + 48 * this.size,this.x - 65 * this.size,this.y + 85 * this.size)
-            triangle(this.x + 53 * this.size,this.y + 48 * this.size,this.x + 77 * this.size,this.y + 48 * this.size,this.x + 65 * this.size,this.y + 85 * this.size)
-            pop()
-        }
 
         pop()
     }
