@@ -128,7 +128,7 @@ function setup() {
 }
 
 function resetSettings() {
-    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal", "happy");
+    kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "happy", "happy");
     fuel.level = 100; // this should be 100!! (full tank)
     speed = -2; // with this, we can set the initial speed (like with a negative number, kitty would bounce up a bit at the start of the game)
 
@@ -606,11 +606,31 @@ class Character {
 
                 break;
             case "happy":
+                straightArm(this.x-12.5, this.y + 2.5, this.size, 135*Math.PI/180);
+                straightArm(this.x+2.5, this.y - 7.5, this.size, 225*Math.PI/180);
+                straps(this.x, this.y, this.size);
+
 
                 break;
             case "dead":
 
                 break;
+        }
+
+        function straightArm(x, y, size, rotation = 0){
+            push()
+            translate(x,y);
+            push();
+            rotate(rotation);
+            noStroke();
+            fill(0);
+            rect(-35 * size, 0 * size, 30 * size, 120* size, 15* size);
+            fill(255);
+            rect(-35* size, 0* size, 30* size, 100* size, 15* size); //used 2 rectangles to show the hand
+            rect(-35* size, 80* size, 30* size, 20* size);
+            pop();
+            pop()
+
         }
 
 
