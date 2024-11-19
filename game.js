@@ -713,8 +713,27 @@ class Character {
                 rotate(-45)
                 noStroke();
                 fill(255,255,0);
-                rect(+90 * this.size, - 45 * this.size, 40 * this.size , 10 * this.size, 6)
+                rect(61 * this.size, - 26* this.size, 40 * this.size , 10 * this.size, 6)
                 pop();
+                
+                push()
+                translate(-17, 0)
+                push()
+                translate(this.x,this.y);
+                rotate(45)
+                noStroke();
+                fill(255,255,0);
+                rect(- 75 * this.size, - 68 * this.size, 40 * this.size , 10 * this.size, 6)
+                pop();
+                //right eye /
+                push()
+                translate(this.x,this.y);
+                rotate(-45)
+                noStroke();
+                fill(255,255,0);
+                rect(61 * this.size, - 26* this.size, 40 * this.size , 10 * this.size, 6)
+                pop();
+                pop()
 
                 break;
         }
