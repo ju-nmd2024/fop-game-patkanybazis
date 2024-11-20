@@ -102,7 +102,7 @@ let debug = false;
 
 
 function setup() {
-    createCanvas(900,600);
+    createCanvas(900, 600);
     frameRate(30) // the flugin uises 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
 
     border = {
@@ -147,14 +147,14 @@ function setup() {
     }
     // the values kitty resets to
     kittyBase = {
-        x: width/2,
-        y: (border.ground + border.ceiling) / 2, 
+        x: width / 2,
+        y: (border.ground + border.ceiling) / 2,
         died: null
     }
     // here, I generate the bars
     bars = {
         fuel: new Bar("Fuel", 25, 40, "rainbow_gr", 100, 1, [5, 10, 25, 50, 75]), // to toFixed gives back the number with the specified amount of decimal digits
-        speed: new Bar("Speed", width - 225, 40, "rainbow_rg", 60, 1, [fatal_v*10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
+        speed: new Bar("Speed", width - 225, 40, "rainbow_rg", 60, 1, [fatal_v * 10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
     }
 
     resetSettings() // here, I reset (but rather set?) the settings for the game
@@ -186,7 +186,6 @@ function resetSettings() {
 }
 
 
-
 function draw() {
     screen.screens[screen.name](); // here, I call the screen that is currently active (we have an object (screen.screens) full of the screens, and contains one-one function with what is happening in those screens)
 
@@ -194,7 +193,7 @@ function draw() {
     if (debug) {
         let timeBetweenFrames = (millis() - last.time) / 1000; // this gets the time between this and the last frame (in case of a lag)
         fill("grey")
-        text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - last.x)**2 + (kitty.y - last.y)**2)/timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
+        text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - last.x) ** 2 + (kitty.y - last.y) ** 2) / timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
         last.x = kitty.x; // this saves the current x pos for the velocity calc
         last.y = kitty.y; // this saves the current y pos for the velocity calc
         last.time = millis(); // this saves the current time for the velocity calc
@@ -221,7 +220,7 @@ function setGameScreens() {
             textFont("ArcadeClassic")
             textSize(100)
             textStyle("bold")
-            text("Space   Kitty", width/2, height/2 - 200)
+            text("Space   Kitty", width / 2, height / 2 - 200)
             pop()
 
             // made by
@@ -255,7 +254,7 @@ function setGameScreens() {
             textFont("ArcadeClassic")
             textSize(18)
             textAlign("center", "center")
-            text("Jonkoping University\n2024", width / 2, 460)
+            text("Jonkoping   University\n2024", width / 2, 460)
             pop()
 
             // instruction
@@ -267,7 +266,7 @@ function setGameScreens() {
             textSize(25)
             textAlign("center", "center")
             if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
-                text("Press   SPACE   to   play", width / 2, height/2 - 140)
+                text("Press   SPACE   to   play", width / 2, height / 2 - 140)
             }
             pop()
         },
@@ -281,7 +280,7 @@ function setGameScreens() {
 
             if (kitty.y >= border.ceiling && kitty.y < border.ground) { //if this is true, it means that the kitty is in space, but not outside the canvas (so, the game is on)
                 if (kitty.y === border.ceiling) { // checks if the kitty is hitting the ceiling
-                    speed = bounce*g; // if it is, then boink (it really sets a speed downwards, so that kitty gets pushed away from the ceiling)
+                    speed = bounce * g; // if it is, then boink (it really sets a speed downwards, so that kitty gets pushed away from the ceiling)
                 }
 
                 if (keyIsDown(32) && fuel.level > 0) { // if the space key is pressed and has fuel, the rocket accelerates
@@ -292,14 +291,14 @@ function setGameScreens() {
                 }
 
                 if (speed > 0) { // if the speed is positive, the rocket goes up
-                    kitty.y += speed**2; // as, when we take the square of a real number, will be positive, but we want to maintain the polarity, so I increase if it is positive and decrease the position if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed, but it's because d=v^2/2g, but since g is constant, we don't bother with it)
+                    kitty.y += speed ** 2; // as, when we take the square of a real number, will be positive, but we want to maintain the polarity, so I increase if it is positive and decrease the position if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed, but it's because d=v^2/2g, but since g is constant, we don't bother with it)
                 } else { // if the speed is negative, the rocket goes down
-                    kitty.y -= speed**2;
+                    kitty.y -= speed ** 2;
                 }
             } else if (kitty.y === border.ground) { // if kitty hits the ground
                 land_v = Math.floor(speed * 100) / 100; // we specify the landing speed here (note: eventually, this way, I get rounding with 2 decimal points (the number of decimal points are the number of zeros there, which is 2 in the number 100))
                 if (land_v <= fatal_v) { // we check if the landing speed exceeds the speed kitty can survive
-                    score = Math.floor(fuel.level + 1000/land_v); // I wanted to take the remaining fuel into account for the score, and the less the landing velocity is, the more points you get
+                    score = Math.floor(fuel.level + 1000 / land_v); // I wanted to take the remaining fuel into account for the score, and the less the landing velocity is, the more points you get
                     kittyBase.died = false;
                 } else {
                     score = 0; // if kitty dies, then no score :c
@@ -332,7 +331,7 @@ function setGameScreens() {
             textSize(25)
             textAlign("center", "center")
             if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
-                text("Press   R   to   restart", width / 2, height/2 -247)
+                text("Press   R   to   restart", width / 2, height / 2 - 247)
             }
             pop()
 
@@ -417,31 +416,30 @@ function background_elements() {
 function moon() {
     noStroke();
     //moon base
-    fill(245,245,245);
+    fill(245, 245, 245);
     ellipse(width / 2, height + 400, 1000, 1000);
 
     //holes
     push();
     translate(width / 2 - 170, height - 30);
     rotate(2.9);
-    fill(192,192,192);
+    fill(192, 192, 192);
     ellipse(0, 0, 90, 60);
     pop();
 
     push();
     translate(width / 2, height);
     rotate();
-    fill(192,192,192);
+    fill(192, 192, 192);
     ellipse(0, 0, 90, 70);
     pop();
 
     push();
     translate(width / 2 + 180, height - 20);
     rotate(0.3);
-    fill(192,192,192);
-    ellipse(0,0, 90, 60);
+    fill(192, 192, 192);
+    ellipse(0, 0, 90, 60);
     pop();
-
 
 
 }
@@ -490,7 +488,7 @@ function keyPressed() {
  */
 function dialDisplays() {
     bars.fuel.set(fuel.level)
-    bars.speed.set(Math.abs(speed*10))
+    bars.speed.set(Math.abs(speed * 10))
     bars.fuel.draw()
     bars.speed.draw()
 }
@@ -527,25 +525,13 @@ class Star {
     size;
     alpha;
     speed;
-    constructor (x, y, size, alpha, speed) {
+
+    constructor(x, y, size, alpha, speed) {
         this.x = x;
         this.y = y;
         this.size = size * 0.05 // the star is just too big now, that's why I reduce it (by default);
         this.alpha = alpha;
         this.speed = speed;
-    }
-
-    /**
-     * Draws the star
-     */
-    draw() {
-        push()
-        noStroke();
-        triangle(this.x , this.y  , this.x + 5 * this.size, this.y - 20*this.size, this.x + 10*this.size , this.y );
-        triangle(this.x, this.y , this.x + 5* this.size, this.y + 20* this.size, this.x + 10* this.size , this.y );
-        triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x - 10 * this.size, this.y , this.x + 5 * this.size, this.y + 5 * this.size );
-        triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x + 20 * this.size, this.y , this.x + 5 * this.size, this.y + 5 * this.size );
-        pop()
     }
 
     /**
@@ -588,10 +574,23 @@ class Star {
             }
             push()
             noStroke()
-            fill(255, 255, 255, Math.sin(stars.collection[i].alpha * Math.PI/180) * 255) // here, we have to convert degrees to radians...
+            fill(255, 255, 255, Math.sin(stars.collection[i].alpha * Math.PI / 180) * 255) // here, we have to convert degrees to radians...
             stars.collection[i].draw();
             pop()
         }
+    }
+
+    /**
+     * Draws the star
+     */
+    draw() {
+        push()
+        noStroke();
+        triangle(this.x, this.y, this.x + 5 * this.size, this.y - 20 * this.size, this.x + 10 * this.size, this.y);
+        triangle(this.x, this.y, this.x + 5 * this.size, this.y + 20 * this.size, this.x + 10 * this.size, this.y);
+        triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x - 10 * this.size, this.y, this.x + 5 * this.size, this.y + 5 * this.size);
+        triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x + 20 * this.size, this.y, this.x + 5 * this.size, this.y + 5 * this.size);
+        pop()
     }
 }
 
@@ -610,6 +609,7 @@ class Character {
     size;
     state;
     flame;
+
     constructor(x, y, size, state, flame = false) {
         this.x = x;
         this.y = y;
@@ -621,44 +621,43 @@ class Character {
     /**
      * Draws the character
      */
-    draw () {
+    draw() {
         push()
         translate(0, -32)
 
         // jetpack bag
         noStroke();
-        fill(105,105,105);
-        rect(this.x - 45 * this.size , this.y - 50 * this.size, 90 * this.size, 100 * this.size, 10 * this.size);
+        fill(105, 105, 105);
+        rect(this.x - 45 * this.size, this.y - 50 * this.size, 90 * this.size, 100 * this.size, 10 * this.size);
 
         //left mini rocket
         noStroke();
-        fill(128,128,128);
-        rect(this.x - 85 * this.size , this.y - 50 * this.size, 40 * this.size, 100 * this.size, 0, 0,10 * this.size, 10 * this.size);
+        fill(128, 128, 128);
+        rect(this.x - 85 * this.size, this.y - 50 * this.size, 40 * this.size, 100 * this.size, 0, 0, 10 * this.size, 10 * this.size);
 
-        fill(255,0,0);
-        triangle(this.x - 85 * this.size, this.y - 43 * this.size, this.x - 65 * this.size, this.y - 90 * this.size, this.x - 45 * this.size,this.y - 43 * this.size);
-        rect(this.x - 85 * this.size, this.y, 40 * this.size , 10 * this.size ); //didn'T work  (y) * s removed for moving
-        rect(this.x - 85 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size );
+        fill(255, 0, 0);
+        triangle(this.x - 85 * this.size, this.y - 43 * this.size, this.x - 65 * this.size, this.y - 90 * this.size, this.x - 45 * this.size, this.y - 43 * this.size);
+        rect(this.x - 85 * this.size, this.y, 40 * this.size, 10 * this.size); //didn'T work  (y) * s removed for moving
+        rect(this.x - 85 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size);
 
 
         //right mini rocket
         noStroke();
-        fill(128,128,128);
-        rect(this.x + 45 * this.size, this.y - 50 * this.size, 40 * this.size, 100 * this.size, 0, 0,10 * this.size, 10 * this.size);
+        fill(128, 128, 128);
+        rect(this.x + 45 * this.size, this.y - 50 * this.size, 40 * this.size, 100 * this.size, 0, 0, 10 * this.size, 10 * this.size);
 
-        fill(255,0,0);
-        triangle(this.x + 85 * this.size, this.y - 43 * this.size, this.x + 65 * this.size, this.y - 90 * this.size, this.x + 45 * this.size,this.y - 43 * this.size);
-        rect(this.x + 45 * this.size, this.y, 40 * this.size, 10 * this.size );
-        rect(this.x + 45 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size );
-
+        fill(255, 0, 0);
+        triangle(this.x + 85 * this.size, this.y - 43 * this.size, this.x + 65 * this.size, this.y - 90 * this.size, this.x + 45 * this.size, this.y - 43 * this.size);
+        rect(this.x + 45 * this.size, this.y, 40 * this.size, 10 * this.size);
+        rect(this.x + 45 * this.size, this.y + 20 * this.size, 40 * this.size, 10 * this.size);
 
 
         //tail
-        fill(34,34,34);
+        fill(34, 34, 34);
         noStroke();
         ellipse(this.x + 30 * this.size, this.y + 70 * this.size, 35 * this.size, 35 * this.size);
         ellipse(this.x + 40 * this.size, this.y + 90 * this.size, 25 * this.size, 25 * this.size);
-        ellipse(this.x + 55 * this.size, this.y + 70 * this.size, 35 * this.size, 35  * this.size);
+        ellipse(this.x + 55 * this.size, this.y + 70 * this.size, 35 * this.size, 35 * this.size);
         ellipse(this.x + 60 * this.size, this.y + 95 * this.size, 35 * this.size, 35 * this.size);
         ellipse(this.x + 78 * this.size, this.y + 78 * this.size, 35 * this.size, 35 * this.size);
         ellipse(this.x + 80 * this.size, this.y + 100 * this.size, 35 * this.size, 35 * this.size);
@@ -667,7 +666,7 @@ class Character {
         ellipse(this.x + 120 * this.size, this.y + 70 * this.size, 35 * this.size, 35 * this.size);
         ellipse(this.x + 125 * this.size, this.y + 95 * this.size, 35 * this.size, 35 * this.size);
         ellipse(this.x + 135 * this.size, this.y + 60 * this.size, 30 * this.size, 30 * this.size);
-        ellipse(this.x + 145 * this.size, this.y + 70* this.size, 30 * this.size, 30 * this.size);
+        ellipse(this.x + 145 * this.size, this.y + 70 * this.size, 30 * this.size, 30 * this.size);
         ellipse(this.x + 145 * this.size, this.y + 85 * this.size, 30 * this.size, 30 * this.size);
         ellipse(this.x + 150 * this.size, this.y + 53 * this.size, 30 * this.size, 30 * this.size);
         ellipse(this.x + 158 * this.size, this.y + 68 * this.size, 30 * this.size, 30 * this.size);
@@ -678,152 +677,148 @@ class Character {
             push()
             noStroke()
             fill("orange")
-            triangle(this.x - 77 * this.size,this.y + 48 * this.size,this.x - 53 * this.size,this.y + 48 * this.size,this.x - 65 * this.size,this.y + 85 * this.size)
-            triangle(this.x + 53 * this.size,this.y + 48 * this.size,this.x + 77 * this.size,this.y + 48 * this.size,this.x + 65 * this.size,this.y + 85 * this.size)
+            triangle(this.x - 77 * this.size, this.y + 48 * this.size, this.x - 53 * this.size, this.y + 48 * this.size, this.x - 65 * this.size, this.y + 85 * this.size)
+            triangle(this.x + 53 * this.size, this.y + 48 * this.size, this.x + 77 * this.size, this.y + 48 * this.size, this.x + 65 * this.size, this.y + 85 * this.size)
             pop()
         }
-
 
 
         ////////////////////////////////////////////////
 
         //body
         noStroke();
-        fill(220,220,220);
-        ellipse(this.x, this.y, 60* this.size, 120* this.size);
+        fill(220, 220, 220);
+        ellipse(this.x, this.y, 60 * this.size, 120 * this.size);
 
         switch (this.state) {
             case "normal":
                 //right arm base
                 push();
-                translate(this.x,this.y);
+                translate(this.x, this.y);
                 rotate(2);
 
                 noStroke();
                 fill(255);
-                rect(-50* this.size, -60* this.size, 30* this.size, 60* this.size, 15* this.size);
+                rect(-50 * this.size, -60 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
                 pop();
 
                 //left arm base
                 push();
-                translate(this.x,this.y);
+                translate(this.x, this.y);
                 rotate(1.2);
 
                 noStroke();
                 fill(255);
-                rect(-50* this.size, 0* this.size, 30* this.size, 60* this.size, 15* this.size);
+                rect(-50 * this.size, 0 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
                 pop();
 
                 straps(this.x, this.y, this.size)
 
                 //left arm top
                 push();
-                translate(this.x,this.y);
+                translate(this.x, this.y);
                 rotate(1.5);
 
                 noStroke();
                 fill(0);
-                rect(-35 * this.size, 10 * this.size, 30 * this.size, 60* this.size, 15* this.size);
+                rect(-35 * this.size, 10 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
                 fill(255);
-                rect(-35* this.size,30* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
-                rect(-35* this.size, 30* this.size, 30* this.size, 20* this.size);
+                rect(-35 * this.size, 30 * this.size, 30 * this.size, 40 * this.size, 15 * this.size); //used 2 rectangles to show the hand
+                rect(-35 * this.size, 30 * this.size, 30 * this.size, 20 * this.size);
                 pop();
 
                 //right arm top
                 push();
-                translate(this.x,this.y);
+                translate(this.x, this.y);
                 rotate(1.7);
 
                 noStroke();
                 fill(0);
-                rect(-35* this.size,-70* this.size, 30* this.size, 60* this.size, 15* this.size);
+                rect(-35 * this.size, -70 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
                 fill(255);
-                rect(-35* this.size,-70* this.size, 30* this.size, 40* this.size, 15* this.size); //used 2 rectangles to show the hand
-                rect(-35* this.size,-50* this.size, 30* this.size, 20* this.size);
+                rect(-35 * this.size, -70 * this.size, 30 * this.size, 40 * this.size, 15 * this.size); //used 2 rectangles to show the hand
+                rect(-35 * this.size, -50 * this.size, 30 * this.size, 20 * this.size);
                 pop();
 
                 break;
             case "happy":
-                straightArm(this.x-12.5, this.y + 2.5, this.size, 135*Math.PI/180);
-                straightArm(this.x+2.5, this.y - 7.5, this.size, 225*Math.PI/180);
+                straightArm(this.x - 12.5, this.y + 2.5, this.size, 135 * Math.PI / 180);
+                straightArm(this.x + 2.5, this.y - 7.5, this.size, 225 * Math.PI / 180);
                 straps(this.x, this.y, this.size);
                 break;
             case "dead":
-                straightArm(this.x-2.5, this.y - 15, this.size, 15*Math.PI/180);
-                straightArm(this.x+16, this.y -18.5, this.size, 345*Math.PI/180);
+                straightArm(this.x - 2.5, this.y - 15, this.size, 15 * Math.PI / 180);
+                straightArm(this.x + 16, this.y - 18.5, this.size, 345 * Math.PI / 180);
                 straps(this.x, this.y, this.size);
                 break;
         }
 
-        function straightArm(x, y, size, rotation = 0){
+        function straightArm(x, y, size, rotation = 0) {
             push()
-            translate(x,y);
+            translate(x, y);
             push();
             rotate(rotation);
             noStroke();
             fill(0);
-            rect(-35 * size, 0 * size, 30 * size, 90* size, 15* size);
+            rect(-35 * size, 0 * size, 30 * size, 90 * size, 15 * size);
             fill(255);
-            rect(-35* size, 0* size, 30* size, 70* size, 15* size); //used 2 rectangles to show the hand
-            rect(-35* size, 50* size, 30* size, 20* size);
+            rect(-35 * size, 0 * size, 30 * size, 70 * size, 15 * size); //used 2 rectangles to show the hand
+            rect(-35 * size, 50 * size, 30 * size, 20 * size);
             pop();
             pop()
 
         }
 
 
-
         function straps(x, y, size) {
             //left strap
             noStroke();
-            fill(128,128,128);
-            rect(x - 30 * size , y - 45 * size, 20 * size, 70 * size, 15 * size);
+            fill(128, 128, 128);
+            rect(x - 30 * size, y - 45 * size, 20 * size, 70 * size, 15 * size);
 
             //right strap
             noStroke();
-            fill(128,128,128);
+            fill(128, 128, 128);
             rect(x + 10 * size, y - 45 * size, 20 * size, 70 * size, 15 * size);
 
         }
 
 
-
         //right leg
         noStroke();
         fill(255);
-        rect(this.x + 5* this.size, this.y + 30* this.size, 30* this.size, 60* this.size, 15* this.size);
+        rect(this.x + 5 * this.size, this.y + 30 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
         fill(0); //used 2 rectangles to show the foot
-        rect(this.x + 5* this.size, this.y + 60* this.size, 30* this.size, 30* this.size, 15* this.size);
-        rect(this.x + 5* this.size, this.y + 55* this.size, 30* this.size, 20* this.size);
+        rect(this.x + 5 * this.size, this.y + 60 * this.size, 30 * this.size, 30 * this.size, 15 * this.size);
+        rect(this.x + 5 * this.size, this.y + 55 * this.size, 30 * this.size, 20 * this.size);
 
         //left leg
         noStroke();
         fill(255);
-        rect(this.x - 35* this.size, this.y + 30* this.size, 30* this.size, 60* this.size, 15* this.size);
+        rect(this.x - 35 * this.size, this.y + 30 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
         fill(0); //used 2 rectangles to show the foot
-        rect(this.x - 35* this.size, this.y + 60* this.size, 30* this.size, 30* this.size, 15* this.size);
-        rect(this.x - 35* this.size, this.y + 55* this.size, 30* this.size, 20* this.size);
+        rect(this.x - 35 * this.size, this.y + 60 * this.size, 30 * this.size, 30 * this.size, 15 * this.size);
+        rect(this.x - 35 * this.size, this.y + 55 * this.size, 30 * this.size, 20 * this.size);
 
 
         //head
         //head base
-        stroke(0,0,0);
+        stroke(0, 0, 0);
         strokeWeight(4);
         fill(0);
-        ellipse(this.x, this.y - 80 * this.size, 120 * this.size , 90 * this.size);
+        ellipse(this.x, this.y - 80 * this.size, 120 * this.size, 90 * this.size);
 
         //left ear
         beginShape();
-        vertex(this.x-60* this.size, this.y - 85* this.size);
+        vertex(this.x - 60 * this.size, this.y - 85 * this.size);
         bezierVertex(this.x - 60 * this.size, this.y - 85 * this.size, this.x - 50 * this.size, this.y - 200 * this.size, this.x - 10 * this.size, this.y - 125 * this.size);
         endShape();
 
         //right ear
         beginShape();
-        vertex(this.x+60* this.size, this.y-75* this.size);
+        vertex(this.x + 60 * this.size, this.y - 75 * this.size);
         bezierVertex(this.x + 60 * this.size, this.y - 95 * this.size, this.x + 50 * this.size, this.y - 200 * this.size, this.x + 10 * this.size, this.y - 125 * this.size);
         endShape();
-
 
 
         //eyes
@@ -837,69 +832,71 @@ class Character {
                 normalEye(this.x + 9, this.y - 28, this.size)
 
 
-                function normalEye(x, y, size) {
-                    push()
-                    translate(x, y)
-                    //eye base
-                    push()
-                    fill(255,255,0);
-                    noStroke();
-                    ellipse(0 * size, 0 * size, 45 * size , 45 * size);
-                    pop()
-                    push()
-                    //eye pupil
-                    fill(0,0,0);
-                    noStroke();
-                    ellipse(0 * size, 0 * size, 20 * size , 35 * size);
-                    pop()
-                    pop()
-                }
+            function normalEye(x, y, size) {
+                push()
+                translate(x, y)
+                //eye base
+                push()
+                fill(255, 255, 0);
+                noStroke();
+                ellipse(0 * size, 0 * size, 45 * size, 45 * size);
+                pop()
+                push()
+                //eye pupil
+                fill(0, 0, 0);
+                noStroke();
+                ellipse(0 * size, 0 * size, 20 * size, 35 * size);
+                pop()
+                pop()
+            }
 
                 break;
             case "happy":
-                happyEye(this.x - 9, this.y -28, this.size);
-                happyEye(this.x + 9, this.y -28, this.size);
+                happyEye(this.x - 9, this.y - 28, this.size);
+                happyEye(this.x + 9, this.y - 28, this.size);
 
-                function happyEye(x, y, size){
-                    push()
-                    stroke(255,255,0);
-                    strokeWeight(4)
-                    beginShape();
-                    vertex(x - 12.5*size, y);
-                    bezierVertex(x - 12.5*size, y, x , y - 25*size, x + 12.5*size, y);
-                    endShape();
-                    pop()
-                }
+            function happyEye(x, y, size) {
+                push()
+                stroke(255, 255, 0);
+                strokeWeight(4)
+                beginShape();
+                vertex(x - 12.5 * size, y);
+                bezierVertex(x - 12.5 * size, y, x, y - 25 * size, x + 12.5 * size, y);
+                endShape();
+                pop()
+            }
+
                 break;
             case "dead":
                 deadEye(this.x - 9, this.y - 30, this.size) // left eye
                 deadEye(this.x + 9, this.y - 30, this.size) // right eye
 
-                function deadEye(x, y, size) {
-                    push()
-                    translate(x,y);
-                    rotate(45*Math.PI/180)
-                    push()
-                    noStroke();
-                    fill(255,255,0);
-                    rect(- 15* size, 0 * size, 40 * size , 10 * size, 6)
-                    pop();
-                    push()
-                    noStroke();
-                    fill(255,255,0);
-                    rect(0 * size, - 15* size, 10 * size , 40 * size, 6)
-                    pop();
-                    pop()
-                }
+            function deadEye(x, y, size) {
+                push()
+                translate(x, y);
+                rotate(45 * Math.PI / 180)
+                push()
+                noStroke();
+                fill(255, 255, 0);
+                rect(-15 * size, 0 * size, 40 * size, 10 * size, 6)
+                pop();
+                push()
+                noStroke();
+                fill(255, 255, 0);
+                rect(0 * size, -15 * size, 10 * size, 40 * size, 6)
+                pop();
+                pop()
+            }
+
                 break;
         }
 
 
         //helmet
         stroke(167, 199, 231);
-        strokeWeight(6*this.size);
+        strokeWeight(6 * this.size);
         fill(70, 130, 180, 40);
-        ellipse(this.x , this.y - 100 * this.size, 150 * this.size, 150 * this.size);
+        ellipse(this.x, this.y - 100 * this.size, 150 * this.size, 150 * this.size);
 
 
         pop()
@@ -927,6 +924,7 @@ class Bar {
     decimal;
     markers;
     value;
+
     constructor(name, x, y, colour, max, decimal, markers = []) {
         this.name = name;
         this.x = x;
@@ -955,11 +953,11 @@ class Bar {
         switch (this.colour) {
             case "rainbow_gr": // green to red
                 colorMode("hsb") // I use the hsb (hue-saturation-brightness) mode, because then, I can specify the colour of the bar with the hue
-                fill(stayWithinRange(this.value, this.max)*120, 100, 100) // the red - yellow - green colours are between 0 and 120° (that's why 120 is there)
+                fill(stayWithinRange(this.value, this.max) * 120, 100, 100) // the red - yellow - green colours are between 0 and 120° (that's why 120 is there)
                 break
             case "rainbow_rg": // red to green
                 colorMode("hsb")
-                fill(120-(stayWithinRange(this.value, this.max)*120), 100, 100) // "120-" is because we invert the colours here, starting from red instead of green
+                fill(120 - (stayWithinRange(this.value, this.max) * 120), 100, 100) // "120-" is because we invert the colours here, starting from red instead of green
                 break
             default:
                 fill(this.colour)
@@ -978,11 +976,11 @@ class Bar {
             } else if (value > max) {
                 return max;
             } else {
-                return value/max;
+                return value / max;
             }
         }
 
-        rect(this.x, this.y, stayWithinRange(this.value, this.max)*200, 20) // we set the width of the inner part of the progress bar relative to the value (note: 200 is the width of the bar and data/scale shows how many of the max value is the given value)
+        rect(this.x, this.y, stayWithinRange(this.value, this.max) * 200, 20) // we set the width of the inner part of the progress bar relative to the value (note: 200 is the width of the bar and data/scale shows how many of the max value is the given value)
         pop()
 
         // bar name/title
@@ -1019,11 +1017,11 @@ class Bar {
          * @param marker {number} - the value of the marker
          * @param divider {boolean} - whether the marker should have a line in the bar or not
          */
-        function markerCreate (x, y, max, marker, divider = false) { // note: I need these parameters because "this" doesn't work inside the function for a reason
-            if (divider){
+        function markerCreate(x, y, max, marker, divider = false) { // note: I need these parameters because "this" doesn't work inside the function for a reason
+            if (divider) {
                 push()
                 strokeWeight(0.5)
-                stroke(0,0,0,127)
+                stroke(0, 0, 0, 127)
                 line(x + 200 * Number(marker) / max, y + 17.5, x + Number(marker) * 200 / max, y + 2.5) // I gave a 2.5 pixel gap on both the top and the bottom of the bar (20[bar height] - 2.5 = 17.5, 0+2.5 = 2.5)
                 pop()
             }
