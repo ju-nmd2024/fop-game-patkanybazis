@@ -53,12 +53,6 @@ let highScore;
 let bounce;
 
 /**
- *  the values of the last frame (really just for debugging)
- * @type {{time: number, x: number, y: number}}
- */
-let last = {};
-
-/**
  * the two bars in the corners
  * @type {object}
  */
@@ -94,28 +88,18 @@ let border = {};
  */
 let screen = {};
 
-/**
- * whether we want to see the info for different things in case of something not working
- * @type {boolean}
- */
-let debug = false;
-
-
 function setup() {
     createCanvas(900, 600);
-    frameRate(30) // the flugin uises 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
+    frameRate(30); // the plugin uses 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
 
     border = {
         ground: height - 100,
         ceiling: 95
-    }
+    };
 
-    // I just set the game settings/behaviour up here
-    // it is important to specify EVERYTHING here
-    // because we call this function when the user
-    // wants to reload the game to reset everything
-    g = 0.15
-    a = 0.1
+    // initialising values
+    g = 0.15;
+    a = 0.1;
 
     fuel.consumption = 0.5;
     fatal_v = 1.2; //if it is over the value then kitty dies :(
@@ -124,7 +108,7 @@ function setup() {
     highScore = getItem('space kitty high score'); //gets the highscore from the browser's storage
 
 
-    screen.name = "menu" //sets the default screen to menu
+    screen.name = "menu"; //sets the default screen to menu
 
     stars = {
         number: 400,
@@ -140,38 +124,32 @@ function setup() {
         },
         big_probability: 150, // 1 in 150 stars will be big
         speed: {
-            measure: 1.5,      // how fast the stars appear and disappear
-            fluctuation: 0.5  // how faster the speed can be (to make the animation more dynamic)
+            measure: 1.5,
+            fluctuation: 0.5
         },
         collection: []  // the collection of stars
-    }
+    };
     // the values kitty resets to
     kittyBase = {
         x: width / 2,
         y: (border.ground + border.ceiling) / 2,
         died: null
-    }
+    };
     // here, I generate the bars
     bars = {
-        fuel: new Bar("Fuel", 25, 40, "rainbow_gr", 100, 1, [5, 10, 25, 50, 75]), // to toFixed gives back the number with the specified amount of decimal digits
+        fuel: new Bar("Fuel", 25, 40, "rainbow_gr", 100, 1, [5, 10, 25, 50, 75]),
         speed: new Bar("Speed", width - 225, 40, "rainbow_rg", 60, 1, [fatal_v * 10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
-    }
+    };
 
-    resetSettings() // here, I reset (but rather set?) the settings for the game
-    setGameScreens() // then, I specify the screens of the game
+    resetSettings();
+    setGameScreens();
 
 
-    // here, I generate the (base) stars
+    // generating the first stars
     for (let i = 0; i < stars.number; i++) {
-        stars.collection.push(new Star().generate()); // this is for the generation of the settings for individual stars, and then, I add the created star to my star collection (where my stars are at ofc)
+        stars.collection.push(new Star().generate());
     }
 
-    //this is just for velocity calculation if something is not working, this is not really important for the project, but for development (this saved me hours I think)
-    if (debug) {
-        last.time = millis(); // this initialises the last time
-        last.x = kitty.x;     // this initialises the last x
-        last.y = kitty.y;     // this initialises the last y
-    }
 }
 
 /**
@@ -179,8 +157,8 @@ function setup() {
  */
 function resetSettings() {
     kitty = new Character(kittyBase.x, kittyBase.y, 0.35, "normal");
-    fuel.level = 100; // this should be 100!! (full tank)
-    speed = -2; // with this, we can set the initial speed (like with a negative number, kitty would bounce up a bit at the start of the game)
+    fuel.level = 100; //100=full tank
+    speed = -2; //initial speed, kitty bounces up a bit at the start of the game
 
 }
 
@@ -192,22 +170,12 @@ function resetSettings() {
  */
 function blink(milliseconds, every, todo) {
     if (Math.floor(millis() / milliseconds) % every === 0) {
-        todo()
+        todo();
     }
 }
 
 function draw() {
-    screen.screens[screen.name](); // here, I call the screen that is currently active (we have an object (screen.screens) full of the screens, and contains one-one function with what is happening in those screens)
-
-    // here, we display and update the debug info (for the next frame)
-    if (debug) {
-        let timeBetweenFrames = (millis() - last.time) / 1000; // this gets the time between this and the last frame (in case of a lag)
-        fill("grey")
-        text(`x: ${kitty.x}\ny: ${kitty.y}\nc: ${border.ceiling}\ng: ${border.ground}\nv: ${Math.sqrt((kitty.x - last.x) ** 2 + (kitty.y - last.y) ** 2) / timeBetweenFrames} px/s\nspeed: ${speed}\nland v: ${land_v}\nscore: ${score}\nh. scr.: ${highScore}\ndied: ${kittyBase.died}\nmode: ${screen.name}`, 10, 15); // idk, calculating with x pos is kinda unnecessary
-        last.x = kitty.x; // this saves the current x pos for the velocity calc
-        last.y = kitty.y; // this saves the current y pos for the velocity calc
-        last.time = millis(); // this saves the current time for the velocity calc
-    }
+    screen.screens[screen.name](); //getting the currently active screen
 }
 
 /**
@@ -215,107 +183,107 @@ function draw() {
  */
 function setGameScreens() {
     screen.screens = {
-        menu: () => { // apparently, this is another way to declare a function :))
+        menu: () => { //another way to declare a function
             background_elements();
             kitty.flame = true; // as kitty is flying in the menu, the flame has to be on
-            kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15; // this gaves kitty that up and down motion
-            kitty.draw()
+            kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15; // this gives kitty that up and down motion
+            kitty.draw();
             moon();
 
             // title
-            push()
-            fill("white")
-            noStroke()
-            textAlign("center", "center")
-            textFont("ArcadeClassic")
-            textSize(100)
-            textStyle("bold")
-            text("Space   Kitty", width / 2, height / 2 - 200)
-            pop()
+            push();
+            fill("white");
+            noStroke();
+            textAlign("center", "center");
+            textFont("ArcadeClassic");
+            textSize(100);
+            textStyle("bold");
+            text("Space   Kitty", width / 2, height / 2 - 200);
+            pop();
 
             // made by
-            push()
-            fill("white")
-            noStroke()
-            textAlign("center", "center")
-            textFont("ArcadeClassic")
-            textSize(20)
-            textStyle("bold")
-            textAlign("center", "center")
-            text("Made   by", width / 2, 385)
-            pop()
+            push();
+            fill("white");
+            noStroke();
+            textAlign("center", "center");
+            textFont("ArcadeClassic");
+            textSize(20);
+            textStyle("bold");
+            textAlign("center", "center");
+            text("Made   by", width / 2, 385);
+            pop();
 
             //author/creator
-            push()
-            fill("white")
-            noStroke()
-            textAlign("center", "center")
-            textFont("ArcadeClassic")
-            textSize(30)
-            textAlign("center", "center")
-            text("Adrienn   Ratonyi", width / 2, 415)
-            pop()
+            push();
+            fill("white");
+            noStroke();
+            textAlign("center", "center");
+            textFont("ArcadeClassic");
+            textSize(30);
+            textAlign("center", "center");
+            text("Adrienn   Ratonyi", width / 2, 415);
+            pop();
 
             // place and year
-            push()
-            fill("white")
-            noStroke()
-            textAlign("center", "center")
-            textFont("ArcadeClassic")
-            textSize(18)
-            textAlign("center", "center")
-            text("Jonkoping   University\n2024", width / 2, 460)
-            pop()
+            push();
+            fill("white");
+            noStroke();
+            textAlign("center", "center");
+            textFont("ArcadeClassic");
+            textSize(18);
+            textAlign("center", "center");
+            text("Jonkoping   University\n2024", width / 2, 460);
+            pop();
 
             // instruction
-            push()
-            fill("white")
-            noStroke()
-            textAlign("center", "center")
-            textFont("ArcadeClassic")
-            textSize(25)
-            textAlign("center", "center")
+            push();
+            fill("white");
+            noStroke();
+            textAlign("center", "center");
+            textFont("ArcadeClassic");
+            textSize(25);
+            textAlign("center", "center");
             blink(500, 2, () => {
-                text("Press   SPACE   to   play", width / 2, height / 2 - 140)
-            })
-            pop()
+                text("Press   SPACE   to   play", width / 2, height / 2 - 140);
+            });
+            pop();
         },
         game: () => {
             background_elements();
-            dialDisplays()
+            dialDisplays();
             kitty.flame = keyIsDown(32) && fuel.level > 0;
             kitty.draw();
             moon();
 
 
-            if (kitty.y >= border.ceiling && kitty.y < border.ground) { //if this is true, it means that the kitty is in space, but not outside the canvas (so, the game is on)
-                if (kitty.y === border.ceiling) { // checks if the kitty is hitting the ceiling
-                    speed = bounce * g; // if it is, then boink (it really sets a speed downwards, so that kitty gets pushed away from the ceiling)
+            if (kitty.y >= border.ceiling && kitty.y < border.ground) {
+                if (kitty.y === border.ceiling) {
+                    speed = bounce * g;
                 }
 
-                if (keyIsDown(32) && fuel.level > 0) { // if the space key is pressed and has fuel, the rocket accelerates
+                if (keyIsDown(32) && fuel.level > 0) {
                     if (kitty.y !== border.ceiling) speed -= a; // without the if, the speed would be (minus) *a* when kitty touches the top (which is a problem when bounce is set to 0, as than the speed would be -a if the rocket is on)
-                    fuel.level -= fuel.consumption; // this really just lowers the fuel level
+                    fuel.level -= fuel.consumption;
                 } else {
                     speed += g; // the free fall formula v = g * t, but since t (or delta t) (the time between frames) is constant, changing this every frame will replace it (don't ask why, I'm not a physics girly)
                 }
 
-                if (speed > 0) { // if the speed is positive, the rocket goes up
-                    kitty.y += speed ** 2; // as, when we take the square of a real number, will be positive, but we want to maintain the polarity, so I increase if it is positive and decrease the position if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed, but it's because d=v^2/2g, but since g is constant, we don't bother with it)
-                } else { // if the speed is negative, the rocket goes down
+                if (speed > 0) {
+                    kitty.y += speed ** 2; // as, when we take the square of a real number, it will be positive, but we want to maintain the polarity of the value, so I increase the position if it is positive and decrease the position if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed, but it's because d=v^2/2g, but since g is constant, we don't bother with it)
+                } else {
                     kitty.y -= speed ** 2;
                 }
-            } else if (kitty.y === border.ground) { // if kitty hits the ground
-                land_v = Math.floor(speed * 100) / 100; // we specify the landing speed here (note: eventually, this way, I get rounding with 2 decimal points (the number of decimal points are the number of zeros there, which is 2 in the number 100))
-                if (land_v <= fatal_v) { // we check if the landing speed exceeds the speed kitty can survive
-                    score = Math.floor(fuel.level + 1000 / land_v); // I wanted to take the remaining fuel into account for the score, and the less the landing velocity is, the more points you get
+            } else if (kitty.y === border.ground) {
+                land_v = Math.floor(speed * 100) / 100;
+                if (land_v <= fatal_v) {
+                    score = Math.floor(fuel.level + 1000 / land_v);
                     kittyBase.died = false;
                 } else {
-                    score = 0; // if kitty dies, then no score :c
+                    score = 0;
                     kittyBase.died = true;
                 }
-                highScore = max(score, highScore); // here, we see if our score or the high score is bigger...
-                storeItem('space kitty high score', highScore); // ...and we save the bigger one into the browser's storage (so, if we have a score that is bigger than the high score, it will be saved)
+                highScore = max(score, highScore);
+                storeItem('space kitty high score', highScore);
                 screen.name = "gameOver";
             }
             // in case kitty goes over the top or below the ground, we need to correct it by pulling it back
@@ -327,86 +295,85 @@ function setGameScreens() {
         },
         gameOver: () => {
             background_elements();
-            dialDisplays()
+            dialDisplays();
             kitty.flame = false; // when kitty has landed, the rocket is no longer on obviously
             kitty.draw();
             moon();
 
             // instruction
-            push()
-            fill("white")
-            noStroke()
-            textAlign("center", "center")
-            textFont("ArcadeClassic")
-            textSize(25)
-            textAlign("center", "center")
+            push();
+            fill("white");
+            noStroke();
+            textAlign("center", "center");
+            textFont("ArcadeClassic");
+            textSize(25);
+            textAlign("center", "center");
             blink(500, 2, () => {
-                text("Press   R   to   restart", width / 2, height / 2 - 247)
-            })
-            pop()
+                text("Press   R   to   restart", width / 2, height / 2 - 247);
+            });
+            pop();
 
             // screen title
-            push()
-            fill("white")
-            textFont("ArcadeClassic")
-            textSize(50)
-            textStyle("bold")
-            textAlign("center", "center")
-            text("Game   Over", width / 2, 150)
-            pop()
+            push();
+            fill("white");
+            textFont("ArcadeClassic");
+            textSize(50);
+            textStyle("bold");
+            textAlign("center", "center");
+            text("Game   Over", width / 2, 150);
+            pop();
 
             if (kittyBase.died) {
-                // if kitty has died, she has to appear dead and the player has no points to display ofc
-                kitty.state = "dead"
-                push()
-                fill("white")
-                textFont("ArcadeClassic")
-                textSize(35)
-                // textStyle("bold")
-                textAlign("center", "center")
-                text("Kitty   didn't   survive\nthe   landing", width / 2, 225)
-                pop()
+                kitty.state = "dead";
+                push();
+                fill("white");
+                textFont("ArcadeClassic");
+                textSize(35);
+
+                textAlign("center", "center");
+                text("Kitty   didn't   survive\nthe   landing", width / 2, 225);
+                pop();
             } else {
-                // but if kitty has successfully, she needs to appear happy and the we show the player their score(s)
-                kitty.state = "happy"
+
+                kitty.state = "happy";
 
                 // score title
-                push()
-                fill("white")
-                textFont("ArcadeClassic")
-                textSize(35)
-                textStyle("bold")
-                textAlign("center", "center")
-                text("Score", width / 2, 225)
-                pop()
+                push();
+                fill("white");
+                textFont("ArcadeClassic");
+                textSize(35);
+                textStyle("bold");
+                textAlign("center", "center");
+                text("Score", width / 2, 225);
+                pop();
 
                 //score
-                push()
-                fill("white")
-                textFont("ArcadeClassic")
-                textSize(25)
-                textAlign("center", "center")
-                text(score, width / 2, 255)
-                pop()
+                push();
+                fill("white");
+                textFont("ArcadeClassic");
+                textSize(25);
+                textAlign("center", "center");
+                text(score, width / 2, 255);
+                pop();
 
                 // high score title
-                push()
-                fill("white")
-                textFont("ArcadeClassic")
-                textSize(25)
-                textStyle("bold")
-                textAlign("center", "center")
-                text("High   Score", width / 2, 300)
-                pop()
+                push();
+                fill("white");
+                textFont("ArcadeClassic");
+                textSize(25);
+                textStyle("bold");
+                textAlign("center", "center");
+                text("High   Score", width / 2, 300);
+                pop();
 
                 // high score
-                push()
-                fill("white")
-                textFont("ArcadeClassic")
-                textSize(20)
-                textAlign("center", "center")
-                text(highScore, width / 2, 330)
-                pop()
+                push();
+                fill("white");
+                textFont("ArcadeClassic");
+                textSize(20);
+                textAlign("center", "center");
+                text(highScore, width / 2, 330);
+                pop();
             }
         }
     }
@@ -455,17 +422,13 @@ function moon() {
 }
 
 
-// here, I handle the key-presses
-// since every key is for different things
-// in different modes/screens, I need to
 // specify which key does what in which screen
 function keyPressed() {
     switch (keyCode) {
         case 32: // SPACE
             switch (screen.name) {
-                // like in the menu, if I press SPACE, it will change the screen to "game"
                 case "menu":
-                    resetSettings()
+                    resetSettings();
                     screen.name = "game";
                     break;
             }
@@ -473,11 +436,11 @@ function keyPressed() {
         case 82: // R
             switch (screen.name) {
                 case "gameOver":
-                    screen.name = "game"
-                    resetSettings() // as we know, it resets the values
+                    screen.name = "game";
+                    resetSettings();
                     break;
                 case "game":
-                    resetSettings()
+                    resetSettings();
                     break;
             }
             break;
@@ -485,8 +448,8 @@ function keyPressed() {
             switch (screen.name) {
                 case "gameOver":
                 case "game":
-                    screen.name = "menu"
-                    resetSettings()
+                    screen.name = "menu";
+                    resetSettings();
                     break;
             }
             break;
@@ -497,10 +460,10 @@ function keyPressed() {
  * Displays the fuel and speed bars
  */
 function dialDisplays() {
-    bars.fuel.set(fuel.level)
-    bars.speed.set(Math.abs(speed * 10))
-    bars.fuel.draw()
-    bars.speed.draw()
+    bars.fuel.set(fuel.level);
+    bars.speed.set(Math.abs(speed * 10));
+    bars.fuel.draw();
+    bars.speed.draw();
 }
 
 
@@ -539,7 +502,7 @@ class Star {
     constructor(x, y, size, alpha, speed) {
         this.x = x;
         this.y = y;
-        this.size = size * 0.05 // the star is just too big now, that's why I reduce it (by default);
+        this.size = size * 0.05; // the star is too big by default
         this.alpha = alpha;
         this.speed = speed;
     }
@@ -551,27 +514,26 @@ class Star {
      */
     generate(base = false) {
 
-            this.x = randomRange(0, width, true) // we generate the x position of the star on the canvas
-            this.y = randomRange(0, height, true) // we generate the y position of the star on the canvas
-            this.alpha = starAlpha()
-            this.size = starSize() * 0.05
-            this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation) // we set the star's ageing speed (the speed of the star's appearance and disappearance), but to make the stars more dynamic, we generate a random addition to the speed
+        this.x = randomRange(0, width, true);
+        this.y = randomRange(0, height, true);
+        this.alpha = starAlpha();
+        this.size = starSize() * 0.05;
+        this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation);
+        return this;
 
-            return this;
-        
-        function starSize () {
-            if (randomRange(0, stars.big_probability, true) === 0) { // so, we "gamble" the big star here (we generate whether the star will be big or not)
-                return randomRange(stars.size.big.min, stars.size.big.max); // if it is big, we generate a "big" size
+        function starSize() {
+            if (randomRange(0, stars.big_probability, true) === 0) {
+                return randomRange(stars.size.big.min, stars.size.big.max);
             } else {
-                return randomRange(stars.size.small.min, stars.size.small.max); // if it is small, we generate a "small" size
+                return randomRange(stars.size.small.min, stars.size.small.max);
             }
         }
 
         function starAlpha() {
             if (base) {
-                return randomRange(0, 180 * 100, true) / 100 // we generate the alpha value for A NEW, BASE star with 2 decimal points (I have explained earlier how we can set the number of decimal places)
+                return randomRange(0, 180 * 100, true) / 100; //100 for 2 decimal places
             } else {
-                return 0; // we reset the alpha value for the star
+                return 0; //reset value
             }
         }
     }
@@ -581,16 +543,16 @@ class Star {
      */
     static display() {
         for (let i = 0; i < stars.number; i++) {
-            if (Math.round(stars.collection[i].alpha) >= 180) { // as the sine of a degree is positive between 0 and 180, we reset it when it reaches 180 (note: the rounding is because sometimes the results are a bit off for no reason)
-                stars.collection[i] = new Star().generate(); // we replace the old star with the new one
+            if (Math.round(stars.collection[i].alpha) >= 180) { //the rounding is there because sometimes the results are a bit off for no reason
+                stars.collection[i] = new Star().generate(); //replacing dead star
             } else {
-                stars.collection[i].alpha += stars.collection[i].speed; // if the star is still "alive", we increase its "age" by the "ageing speed"
+                stars.collection[i].alpha += stars.collection[i].speed;
             }
-            push()
-            noStroke()
-            fill(255, 255, 255, Math.sin(stars.collection[i].alpha * Math.PI / 180) * 255) // here, we have to convert degrees to radians...
+            push();
+            noStroke();
+            fill(255, 255, 255, Math.sin(stars.collection[i].alpha * Math.PI / 180) * 255); //converting to radians
             stars.collection[i].draw();
-            pop()
+            pop();
         }
     }
 
@@ -598,13 +560,13 @@ class Star {
      * Draws the star
      */
     draw() {
-        push()
+        push();
         noStroke();
         triangle(this.x, this.y, this.x + 5 * this.size, this.y - 20 * this.size, this.x + 10 * this.size, this.y);
         triangle(this.x, this.y, this.x + 5 * this.size, this.y + 20 * this.size, this.x + 10 * this.size, this.y);
         triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x - 10 * this.size, this.y, this.x + 5 * this.size, this.y + 5 * this.size);
         triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x + 20 * this.size, this.y, this.x + 5 * this.size, this.y + 5 * this.size);
-        pop()
+        pop();
     }
 }
 
@@ -636,8 +598,8 @@ class Character {
      * Draws the character
      */
     draw() {
-        push()
-        translate(0, -32)
+        push();
+        translate(0, -32);
 
         // jetpack bag
         noStroke();
@@ -688,12 +650,12 @@ class Character {
 
         //flame
         if (this.flame) {
-            push()
-            noStroke()
-            fill("orange")
-            triangle(this.x - 77 * this.size, this.y + 48 * this.size, this.x - 53 * this.size, this.y + 48 * this.size, this.x - 65 * this.size, this.y + 85 * this.size)
-            triangle(this.x + 53 * this.size, this.y + 48 * this.size, this.x + 77 * this.size, this.y + 48 * this.size, this.x + 65 * this.size, this.y + 85 * this.size)
-            pop()
+            push();
+            noStroke();
+            fill("orange");
+            triangle(this.x - 77 * this.size, this.y + 48 * this.size, this.x - 53 * this.size, this.y + 48 * this.size, this.x - 65 * this.size, this.y + 85 * this.size);
+            triangle(this.x + 53 * this.size, this.y + 48 * this.size, this.x + 77 * this.size, this.y + 48 * this.size, this.x + 65 * this.size, this.y + 85 * this.size);
+            pop();
         }
 
 
@@ -726,7 +688,7 @@ class Character {
                 rect(-50 * this.size, 0 * this.size, 30 * this.size, 60 * this.size, 15 * this.size);
                 pop();
 
-                straps(this.x, this.y, this.size)
+                straps(this.x, this.y, this.size);
 
                 //left arm top
                 push();
@@ -768,7 +730,7 @@ class Character {
         }
 
         function straightArm(x, y, size, rotation = 0) {
-            push()
+            push();
             translate(x, y);
             push();
             rotate(rotation);
@@ -779,7 +741,7 @@ class Character {
             rect(-35 * size, 0 * size, 30 * size, 70 * size, 15 * size); //used 2 rectangles to show the hand
             rect(-35 * size, 50 * size, 30 * size, 20 * size);
             pop();
-            pop()
+            pop();
 
         }
 
@@ -816,6 +778,7 @@ class Character {
 
 
         //head
+
         //head base
         stroke(0, 0, 0);
         strokeWeight(4);
@@ -839,29 +802,27 @@ class Character {
 
         switch (this.state) {
             case "normal":
-                // the normal eyes go here
-                // left eye base
 
-                normalEye(this.x - 9, this.y - 28, this.size)
-                normalEye(this.x + 9, this.y - 28, this.size)
+                normalEye(this.x - 9, this.y - 28, this.size);
+                normalEye(this.x + 9, this.y - 28, this.size);
 
 
             function normalEye(x, y, size) {
-                push()
-                translate(x, y)
+                push();
+                translate(x, y);
                 //eye base
-                push()
+                push();
                 fill(255, 255, 0);
                 noStroke();
                 ellipse(0 * size, 0 * size, 45 * size, 45 * size);
-                pop()
-                push()
+                pop();
+                push();
                 //eye pupil
                 fill(0, 0, 0);
                 noStroke();
                 ellipse(0 * size, 0 * size, 20 * size, 35 * size);
-                pop()
-                pop()
+                pop();
+                pop();
             }
 
                 break;
@@ -870,41 +831,40 @@ class Character {
                 happyEye(this.x + 9, this.y - 28, this.size);
 
             function happyEye(x, y, size) {
-                push()
+                push();
                 stroke(255, 255, 0);
                 strokeWeight(4)
                 beginShape();
                 vertex(x - 12.5 * size, y);
                 bezierVertex(x - 12.5 * size, y, x, y - 25 * size, x + 12.5 * size, y);
                 endShape();
-                pop()
+                pop();
             }
 
                 break;
             case "dead":
-                deadEye(this.x - 9, this.y - 30, this.size) // left eye
-                deadEye(this.x + 9, this.y - 30, this.size) // right eye
+                deadEye(this.x - 9, this.y - 30, this.size); // left eye
+                deadEye(this.x + 9, this.y - 30, this.size); // right eye
 
             function deadEye(x, y, size) {
-                push()
+                push();
                 translate(x, y);
-                rotate(45 * Math.PI / 180)
-                push()
+                rotate(45 * Math.PI / 180);
+                push();
                 noStroke();
                 fill(255, 255, 0);
-                rect(-15 * size, 0 * size, 40 * size, 10 * size, 6)
+                rect(-15 * size, 0 * size, 40 * size, 10 * size, 6);
                 pop();
-                push()
+                push();
                 noStroke();
                 fill(255, 255, 0);
-                rect(0 * size, -15 * size, 10 * size, 40 * size, 6)
+                rect(0 * size, -15 * size, 10 * size, 40 * size, 6);
                 pop();
-                pop()
+                pop();
             }
 
                 break;
         }
-
 
         //helmet
         stroke(167, 199, 231);
@@ -912,8 +872,7 @@ class Character {
         fill(70, 130, 180, 40);
         ellipse(this.x, this.y - 100 * this.size, 150 * this.size, 150 * this.size);
 
-
-        pop()
+        pop();
     }
 }
 
@@ -954,28 +913,28 @@ class Bar {
      */
     draw() {
         // the "shell" of the bar
-        push()
-        strokeCap("round")
-        strokeWeight(1)
-        stroke("black")
-        fill("white")
-        rect(this.x - 0.5, this.y - 0.5, 200 + 1, 20 + 1) // I added 1 to the height and width because of the stroke
-        pop()
+        push();
+        strokeCap("round");
+        strokeWeight(1);
+        stroke("black");
+        fill("white");
+        rect(this.x - 0.5, this.y - 0.5, 200 + 1, 20 + 1); // I added 1 to the height and width because of the stroke
+        pop();
         // the "progress" part of the bar
-        push()
-        noStroke()
+        push();
+        noStroke();
         switch (this.colour) {
             case "rainbow_gr": // green to red
-                colorMode("hsb") // I use the hsb (hue-saturation-brightness) mode, because then, I can specify the colour of the bar with the hue
-                fill(stayWithinRange(this.value, this.max) * 120, 100, 100) // the red - yellow - green colours are between 0 and 120° (that's why 120 is there)
-                break
+                colorMode("hsb"); //(hue-saturation-brightness) specify the colour of the bar with the hue (0 - red, 60 - yellow, 120 - green)
+                fill(stayWithinRange(this.value, this.max) * 120, 100, 100);
+                break;
             case "rainbow_rg": // red to green
-                colorMode("hsb")
-                fill(120 - (stayWithinRange(this.value, this.max) * 120), 100, 100) // "120-" is because we invert the colours here, starting from red instead of green
-                break
+                colorMode("hsb");
+                fill(120 - (stayWithinRange(this.value, this.max) * 120), 100, 100);
+                break;
             default:
-                fill(this.colour)
-                break
+                fill(this.colour);
+                break;
         }
 
         /**
@@ -994,33 +953,34 @@ class Bar {
             }
         }
 
-        rect(this.x, this.y, stayWithinRange(this.value, this.max) * 200, 20) // we set the width of the inner part of the progress bar relative to the value (note: 200 is the width of the bar and data/scale shows how many of the max value is the given value)
-        pop()
+        rect(this.x, this.y, stayWithinRange(this.value, this.max) * 200, 20); // 200: width of the bar
+
+        pop();
 
         // bar name/title
-        push()
-        textAlign("center", "top")
-        textSize(15)
-        textFont("ArcadeClassic")
-        fill("white")
-        text(this.name, this.x + 100, this.y - 20)
-        pop()
+        push();
+        textAlign("center", "top");
+        textSize(15);
+        textFont("ArcadeClassic");
+        fill("white");
+        text(this.name, this.x + 100, this.y - 20);
+        pop();
 
         // output value
-        push()
-        textAlign("center", "top")
-        textSize(20)
-        textFont("ArcadeClassic")
-        fill("white")
-        text(this.value.toFixed(this.decimal), this.x + 100, this.y + 37.5)
-        pop()
+        push();
+        textAlign("center", "top");
+        textSize(20);
+        textFont("ArcadeClassic");
+        fill("white");
+        text(this.value.toFixed(this.decimal), this.x + 100, this.y + 37.5);
+        pop();
 
         // top and bottom markers
-        markerCreate(this.x, this.y, this.max, 0) // the smallest value
-        markerCreate(this.x, this.y, this.max, this.max) // the biggest value
+        markerCreate(this.x, this.y, this.max, 0); // the smallest value
+        markerCreate(this.x, this.y, this.max, this.max); // the biggest value
 
-        for (const marker of this.markers) { // here, I go through the marker values and I create/display them
-            markerCreate(this.x, this.y, this.max, marker, true)
+        for (const marker of this.markers) { //going through the marker values & create/display them
+            markerCreate(this.x, this.y, this.max, marker, true);
         }
 
         /**
@@ -1031,21 +991,21 @@ class Bar {
          * @param marker {number} - the value of the marker
          * @param divider {boolean} - whether the marker should have a line in the bar or not
          */
-        function markerCreate(x, y, max, marker, divider = false) { // note: I need these parameters because "this" doesn't work inside the function for a reason
+        function markerCreate(x, y, max, marker, divider = false) { // I need these parameters because "this" doesn't work inside the function for a reason
             if (divider) {
-                push()
-                strokeWeight(0.5)
-                stroke(0, 0, 0, 127)
-                line(x + 200 * Number(marker) / max, y + 17.5, x + Number(marker) * 200 / max, y + 2.5) // I gave a 2.5 pixel gap on both the top and the bottom of the bar (20[bar height] - 2.5 = 17.5, 0+2.5 = 2.5)
-                pop()
+                push();
+                strokeWeight(0.5);
+                stroke(0, 0, 0, 127);
+                line(x + 200 * Number(marker) / max, y + 17.5, x + Number(marker) * 200 / max, y + 2.5); //  2.5 pixel gap
+                pop();
             }
-            push()
-            textSize(10)
-            textAlign("center", "bottom")
-            textFont("ArcadeClassic")
-            fill("white")
-            text(marker, x + 200 * Number(marker) / max, y + 32.5) // 200 is the bar width, and marker / scale is really the percentage of the position in the bar
-            pop()
+            push();
+            textSize(10);
+            textAlign("center", "bottom");
+            textFont("ArcadeClassic");
+            fill("white");
+            text(marker, x + 200 * Number(marker) / max, y + 32.5);
+            pop();
         }
     }
 
