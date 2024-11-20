@@ -163,8 +163,7 @@ function setup() {
 
     // here, I generate the (base) stars
     for (let i = 0; i < stars.number; i++) {
-        let star_options = Star.generate(true); // this is for the generation of the settings for individual stars
-        stars.collection.push(new Star(star_options.x, star_options.y, star_options.size, star_options.alpha, star_options.speed)); // then, I add the created star to my star collection (where my stars are at ofc)
+        stars.collection.push(new Star().generate()); // this is for the generation of the settings for individual stars, and then, I add the created star to my star collection (where my stars are at ofc)
     }
 
     //this is just for velocity calculation if something is not working, this is not really important for the project, but for development (this saved me hours I think)
@@ -536,28 +535,33 @@ class Star {
 
     /**
      * Generates the settings for a star
-     * @param base
-     * @returns {{size: number, alpha: number, x: number, y: number, speed: number}}
+     * @param base {boolean} whether the star is a base star or not
+     * @returns {Star} the star with the generated settings
      */
-    static generate(base = false) {
-        let size;
-        if (randomRange(0, stars.big_probability, true) === 0) { // so, we "gamble" the big star here (we generate whether the star will be big or not)
-            size = randomRange(stars.size.big.min, stars.size.big.max); // if it is big, we generate a "big" size
-        } else {
-            size = randomRange(stars.size.small.min, stars.size.small.max); // if it is small, we generate a "small" size
+    generate(base = false) {
+
+            this.x = randomRange(0, width, true) // we generate the x position of the star on the canvas
+            this.y = randomRange(0, height, true) // we generate the y position of the star on the canvas
+            this.alpha = starAlpha()
+            this.size = starSize() * 0.05
+            this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation) // we set the star's ageing speed (the speed of the star's appearance and disappearance), but to make the stars more dynamic, we generate a random addition to the speed
+
+            return this;
+        
+        function starSize () {
+            if (randomRange(0, stars.big_probability, true) === 0) { // so, we "gamble" the big star here (we generate whether the star will be big or not)
+                return randomRange(stars.size.big.min, stars.size.big.max); // if it is big, we generate a "big" size
+            } else {
+                return randomRange(stars.size.small.min, stars.size.small.max); // if it is small, we generate a "small" size
+            }
         }
-        let alpha;
-        if (base) {
-            alpha = randomRange(0, 180 * 100, true) / 100 // we generate the alpha value for A NEW, BASE star with 2 decimal points (I have explained earlier how we can set the number of decimal places)
-        } else {
-            alpha = 0; // we reset the alpha value for the star
-        }
-        return {
-            x: randomRange(0, width, true), // we generate the x position of the star on the canvas
-            y: randomRange(0, height, true), // we generate the y position of the star on the canvas
-            alpha: alpha,
-            size: size,
-            speed: stars.speed.measure + randomRange(0, stars.speed.fluctuation) // we set the star's ageing speed (the speed of the star's appearance and disappearance), but to make the stars more dynamic, we generate a random addition to the speed
+
+        function starAlpha() {
+            if (base) {
+                return randomRange(0, 180 * 100, true) / 100 // we generate the alpha value for A NEW, BASE star with 2 decimal points (I have explained earlier how we can set the number of decimal places)
+            } else {
+                return 0; // we reset the alpha value for the star
+            }
         }
     }
 
@@ -567,8 +571,7 @@ class Star {
     static display() {
         for (let i = 0; i < stars.number; i++) {
             if (Math.round(stars.collection[i].alpha) >= 180) { // as the sine of a degree is positive between 0 and 180, we reset it when it reaches 180 (note: the rounding is because sometimes the results are a bit off for no reason)
-                let star_options = Star.generate(); // we generate the settings for the brand-new star
-                stars.collection[i] = new Star(star_options.x, star_options.y, star_options.size, star_options.alpha, star_options.speed); // we replace the old star with the new one
+                stars.collection[i] = new Star().generate(); // we replace the old star with the new one
             } else {
                 stars.collection[i].alpha += stars.collection[i].speed; // if the star is still "alive", we increase its "age" by the "ageing speed"
             }
