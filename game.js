@@ -184,6 +184,17 @@ function resetSettings() {
 
 }
 
+/**
+ * Blinking display of elements
+ * @param milliseconds {number} the time between cycles in miliseconds
+ * @param every {number} in every what cycle the function should be executed
+ * @param todo {function} the function to be executed
+ */
+function blink(milliseconds, every, todo) {
+    if (Math.floor(millis() / milliseconds) % every === 0) {
+        todo()
+    }
+}
 
 function draw() {
     screen.screens[screen.name](); // here, I call the screen that is currently active (we have an object (screen.screens) full of the screens, and contains one-one function with what is happening in those screens)
@@ -264,9 +275,9 @@ function setGameScreens() {
             textFont("ArcadeClassic")
             textSize(25)
             textAlign("center", "center")
-            if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
+            blink(500, 2, () => {
                 text("Press   SPACE   to   play", width / 2, height / 2 - 140)
-            }
+            })
             pop()
         },
         game: () => {
@@ -329,9 +340,9 @@ function setGameScreens() {
             textFont("ArcadeClassic")
             textSize(25)
             textAlign("center", "center")
-            if (Math.floor(millis() / (1000 / 2)) % 2 === 0) {
+            blink(500, 2, () => {
                 text("Press   R   to   restart", width / 2, height / 2 - 247)
-            }
+            })
             pop()
 
             // screen title
