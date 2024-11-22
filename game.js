@@ -54,7 +54,7 @@ let bounce;
 
 /**
  * the two bars in the corners
- * @type {object}
+ * @type {{fuel: Bar, speed: Bar}}
  */
 let bars = {};
 
@@ -502,7 +502,7 @@ class Star {
     constructor(x, y, size, alpha, speed) {
         this.x = x;
         this.y = y;
-        this.size = size * 0.05; // the star is too big by default
+        this.size = size;
         this.alpha = alpha;
         this.speed = speed;
     }
@@ -516,26 +516,11 @@ class Star {
 
         this.x = randomRange(0, width, true);
         this.y = randomRange(0, height, true);
-        this.alpha = starAlpha();
-        this.size = starSize() * 0.05;
+        this.alpha = base ? randomRange(0, 180 * 100, true) / 100 : 0;
+        this.size = randomRange(0, stars.big_probability, true) === 0 ? randomRange(stars.size.big.min, stars.size.big.max) : randomRange(stars.size.small.min, stars.size.small.max);
         this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation);
         return this;
 
-        function starSize() {
-            if (randomRange(0, stars.big_probability, true) === 0) {
-                return randomRange(stars.size.big.min, stars.size.big.max);
-            } else {
-                return randomRange(stars.size.small.min, stars.size.small.max);
-            }
-        }
-
-        function starAlpha() {
-            if (base) {
-                return randomRange(0, 180 * 100, true) / 100; //100 for 2 decimal places
-            } else {
-                return 0; //reset value
-            }
-        }
     }
 
     /**
@@ -562,11 +547,13 @@ class Star {
     draw() {
         push();
         noStroke();
-        triangle(this.x, this.y, this.x + 5 * this.size, this.y - 20 * this.size, this.x + 10 * this.size, this.y);
-        triangle(this.x, this.y, this.x + 5 * this.size, this.y + 20 * this.size, this.x + 10 * this.size, this.y);
-        triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x - 10 * this.size, this.y, this.x + 5 * this.size, this.y + 5 * this.size);
-        triangle(this.x + 5 * this.size, this.y - 5 * this.size, this.x + 20 * this.size, this.y, this.x + 5 * this.size, this.y + 5 * this.size);
+        triangle(this.x, this.y, this.x + 0.25 * this.size, this.y - 1 * this.size, this.x + 0.5 * this.size, this.y);
+        triangle(this.x, this.y, this.x + 0.25 * this.size, this.y + 1 * this.size, this.x + 0.5 * this.size, this.y);
+        triangle(this.x + 0.25 * this.size, this.y - 0.25 * this.size, this.x - 0.5 * this.size, this.y, this.x + 0.25 * this.size, this.y + 0.25 * this.size);
+        triangle(this.x + 0.25 * this.size, this.y - 0.25 * this.size, this.x + 1 * this.size, this.y, this.x + 0.25 * this.size, this.y + 0.25 * this.size);
         pop();
+
+        return this;
     }
 }
 
@@ -873,6 +860,8 @@ class Character {
         ellipse(this.x, this.y - 100 * this.size, 150 * this.size, 150 * this.size);
 
         pop();
+
+        return this;
     }
 }
 
@@ -947,7 +936,7 @@ class Bar {
             if (value < 0) {
                 return 0;
             } else if (value > max) {
-                return max;
+                return 1;
             } else {
                 return value / max;
             }
@@ -996,7 +985,7 @@ class Bar {
                 push();
                 strokeWeight(0.5);
                 stroke(0, 0, 0, 127);
-                line(x + 200 * Number(marker) / max, y + 17.5, x + Number(marker) * 200 / max, y + 2.5); //  2.5 pixel gap
+                line(x + 200 * marker / max, y + 17.5, x + marker * 200 / max, y + 2.5); //  2.5 pixel gap
                 pop();
             }
             push();
@@ -1004,9 +993,11 @@ class Bar {
             textAlign("center", "bottom");
             textFont("ArcadeClassic");
             fill("white");
-            text(marker, x + 200 * Number(marker) / max, y + 32.5);
+            text(marker, x + 200 * marker / max, y + 32.5);
             pop();
         }
+        
+        return this;
     }
 
     /**
@@ -1014,5 +1005,6 @@ class Bar {
      * @param value {number} - the value of the bar    */
     set(value) {
         this.value = value;
+        return this;
     }
 }
