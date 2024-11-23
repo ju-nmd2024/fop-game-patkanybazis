@@ -159,7 +159,7 @@ function setup() {
 
     // generating the first stars
     for (let i = 0; i < stars.number; i++) {
-        stars.collection.push(new Star().generate());
+        stars.collection.push(new Star().generate(true));
     }
 
 }
