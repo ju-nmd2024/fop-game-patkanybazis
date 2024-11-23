@@ -2,7 +2,7 @@
  *
  * @type {{size: {width: number, height: number}}}
  */
-let canvas = {}
+let canvas = {};
 /**
  * the speed of the object
  * @type {number}
@@ -99,7 +99,7 @@ function setup() {
             width: 900,
             height: 600
         }
-    }
+    };
 
     createCanvas(windowWidth, windowHeight);
     frameRate(30); // the plugin uses 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
@@ -176,8 +176,8 @@ function resetSettings() {
 
 /**
  * Blinking display of elements
- * @param milliseconds {number} the time between cycles in miliseconds
- * @param every {number} in every what cycle the function should be executed
+ * @param milliseconds {number} the time between cycles in milliseconds
+ * @param every {number} in every what cycle the function is executed
  * @param todo {function} the function to be executed
  */
 function blink(milliseconds, every, todo) {
@@ -187,15 +187,15 @@ function blink(milliseconds, every, todo) {
 }
 
 function draw() {
-    background_elements()
+    background_elements();
     translate(((windowWidth - canvas.size.width) / 2), 0); // to centre the canvas
-    push()
+    push();
     // console.log(`${((windowWidth - canvas.size.width) / 2)}\n${windowWidth}\n${canvas.size.width}`)
     translate(canvas.size.width / 2, 0); // to scale from the centre (idk why it doesn't need the y)
-    scale(windowHeight / canvas.size.height)
+    scale(windowHeight / canvas.size.height);
     translate(-canvas.size.width / 2, 0); // reverting the translation for the "scaling"
     screen.screens[screen.name]();
-    pop()
+    pop();
 }
 
 function windowResized() {
@@ -298,7 +298,7 @@ function setGameScreens() {
             } else if (kitty.y === border.ground) {
                 land_v = Math.floor(speed * 100) / 100;
                 if (land_v <= fatal_v) {
-                    score = Math.floor(fuel.level + 1000 / land_v);
+                    score = Math.floor((fuel.level + 1000 / land_v));
                     kittyBase.died = false;
                 } else {
                     score = 0;
@@ -565,13 +565,14 @@ class Star {
     /**
      * Draws the star
      */
-    draw() {
+    draw(x = this.x * width, y = this.y * height, size = this.size * (height / canvas.size.height)) { // note: I specify the width and height because of the fullscreen support
+
         push();
         noStroke();
-        triangle(this.x * width, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height - 1 * this.size * height / canvas.size.height, this.x * width + 0.5 * this.size * height / canvas.size.height, this.y * height);
-        triangle(this.x * width, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height + 1 * this.size * height / canvas.size.height, this.x * width + 0.5 * this.size * height / canvas.size.height, this.y * height);
-        triangle(this.x * width + 0.25 * this.size * height / canvas.size.height * height / canvas.size.height, this.y * height - 0.25 * this.size * height / canvas.size.height, this.x * width - 0.5 * this.size * height / canvas.size.height, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height + 0.25 * this.size * height / canvas.size.height);
-        triangle(this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height - 0.25 * this.size * height / canvas.size.height, this.x * width + 1 * this.size * height / canvas.size.height, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height + 0.25 * this.size * height / canvas.size.height);
+        triangle(x, y, x + 0.25 * size, y - 1 * size, x + 0.5 * size, y);
+        triangle(x, y, x + 0.25 * size, y + 1 * size, x + 0.5 * size, y);
+        triangle(x + 0.25 * size, y - 0.25 * size, x - 0.5 * size, y, x + 0.25 * size, y + 0.25 * size);
+        triangle(x + 0.25 * size, y - 0.25 * size, x + 1 * size, y, x + 0.25 * size, y + 0.25 * size);
         pop();
 
         return this;
