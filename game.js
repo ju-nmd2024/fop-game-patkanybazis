@@ -101,7 +101,7 @@ function setup() {
         }
     }
 
-    createCanvas(windowHeight * canvas.size.width / canvas.size.height, windowHeight);
+    createCanvas(windowWidth, windowHeight);
     frameRate(30); // the plugin uses 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
 
     border = {
@@ -187,12 +187,19 @@ function blink(milliseconds, every, todo) {
 }
 
 function draw() {
-    scale(windowHeight / 600)
-    screen.screens[screen.name](); //getting the currently active screen
+    background_elements()
+    translate(((windowWidth - canvas.size.width) / 2), 0); // to centre the canvas
+    push()
+    // console.log(`${((windowWidth - canvas.size.width) / 2)}\n${windowWidth}\n${canvas.size.width}`)
+    translate(canvas.size.width / 2, 0); // to scale from the centre (idk why it doesn't need the y)
+    scale(windowHeight / canvas.size.height)
+    translate(-canvas.size.width / 2, 0); // reverting the translation for the "scaling"
+    screen.screens[screen.name]();
+    pop()
 }
 
 function windowResized() {
-    resizeCanvas(windowHeight * canvas.size.width / canvas.size.height, windowHeight);
+    resizeCanvas(windowWidth, windowHeight);
 }
 
 /**
@@ -201,7 +208,6 @@ function windowResized() {
 function setGameScreens() {
     screen.screens = {
         menu: () => { //another way to declare a function
-            background_elements();
             kitty.flame = true; // as kitty is flying in the menu, the flame has to be on
             kitty.y = kittyBase.y + Math.sin(millis() / 1000 * 2) * 15; // this gives kitty that up and down motion
             kitty.draw();
@@ -266,7 +272,6 @@ function setGameScreens() {
             pop();
         },
         game: () => {
-            background_elements();
             dialDisplays();
             kitty.flame = keyIsDown(32) && fuel.level > 0;
             kitty.draw();
@@ -311,7 +316,6 @@ function setGameScreens() {
             }
         },
         gameOver: () => {
-            background_elements();
             dialDisplays();
             kitty.flame = false; // when kitty has landed, the rocket is no longer on obviously
             kitty.draw();
@@ -531,8 +535,8 @@ class Star {
      */
     generate(base = false) {
 
-        this.x = randomRange(0, canvas.size.width, true);
-        this.y = randomRange(0, canvas.size.height, true);
+        this.x = Math.random();
+        this.y = Math.random();
         this.alpha = base ? randomRange(0, 180 * 100, true) / 100 : 0;
         this.size = randomRange(0, stars.big_probability, true) === 0 ? randomRange(stars.size.big.min, stars.size.big.max) : randomRange(stars.size.small.min, stars.size.small.max);
         this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation);
@@ -564,10 +568,10 @@ class Star {
     draw() {
         push();
         noStroke();
-        triangle(this.x, this.y, this.x + 0.25 * this.size, this.y - 1 * this.size, this.x + 0.5 * this.size, this.y);
-        triangle(this.x, this.y, this.x + 0.25 * this.size, this.y + 1 * this.size, this.x + 0.5 * this.size, this.y);
-        triangle(this.x + 0.25 * this.size, this.y - 0.25 * this.size, this.x - 0.5 * this.size, this.y, this.x + 0.25 * this.size, this.y + 0.25 * this.size);
-        triangle(this.x + 0.25 * this.size, this.y - 0.25 * this.size, this.x + 1 * this.size, this.y, this.x + 0.25 * this.size, this.y + 0.25 * this.size);
+        triangle(this.x * width, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height - 1 * this.size * height / canvas.size.height, this.x * width + 0.5 * this.size * height / canvas.size.height, this.y * height);
+        triangle(this.x * width, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height + 1 * this.size * height / canvas.size.height, this.x * width + 0.5 * this.size * height / canvas.size.height, this.y * height);
+        triangle(this.x * width + 0.25 * this.size * height / canvas.size.height * height / canvas.size.height, this.y * height - 0.25 * this.size * height / canvas.size.height, this.x * width - 0.5 * this.size * height / canvas.size.height, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height + 0.25 * this.size * height / canvas.size.height);
+        triangle(this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height - 0.25 * this.size * height / canvas.size.height, this.x * width + 1 * this.size * height / canvas.size.height, this.y * height, this.x * width + 0.25 * this.size * height / canvas.size.height, this.y * height + 0.25 * this.size * height / canvas.size.height);
         pop();
 
         return this;
