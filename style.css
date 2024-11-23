@@ -2,6 +2,7 @@ body,
 html {
   margin: 0px auto;
   height: 100%;
+  background: rgb(25, 25, 112);
 }
 
 main {

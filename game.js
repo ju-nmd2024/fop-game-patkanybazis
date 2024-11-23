@@ -1,4 +1,9 @@
 /**
+ *
+ * @type {{size: {width: number, height: number}}}
+ */
+let canvas = {}
+/**
  * the speed of the object
  * @type {number}
  */
@@ -89,11 +94,18 @@ let border = {};
 let screen = {};
 
 function setup() {
-    createCanvas(900, 600);
+    canvas = {
+        size: {
+            width: 900,
+            height: 600
+        }
+    }
+
+    createCanvas(windowHeight * canvas.size.width / canvas.size.height, windowHeight);
     frameRate(30); // the plugin uses 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
 
     border = {
-        ground: height - 100,
+        ground: canvas.size.height - 100,
         ceiling: 95
     };
 
@@ -131,14 +143,14 @@ function setup() {
     };
     // the values kitty resets to
     kittyBase = {
-        x: width / 2,
+        x: canvas.size.width / 2,
         y: (border.ground + border.ceiling) / 2,
         died: null
     };
     // here, I generate the bars
     bars = {
         fuel: new Bar("Fuel", 25, 40, "rainbow_gr", 100, 1, [5, 10, 25, 50, 75]),
-        speed: new Bar("Speed", width - 225, 40, "rainbow_rg", 60, 1, [fatal_v * 10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
+        speed: new Bar("Speed", canvas.size.width - 225, 40, "rainbow_rg", 60, 1, [fatal_v * 10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
     };
 
     resetSettings();
@@ -175,7 +187,12 @@ function blink(milliseconds, every, todo) {
 }
 
 function draw() {
+    scale(windowHeight / 600)
     screen.screens[screen.name](); //getting the currently active screen
+}
+
+function windowResized() {
+    resizeCanvas(windowHeight * canvas.size.width / canvas.size.height, windowHeight);
 }
 
 /**
@@ -198,7 +215,7 @@ function setGameScreens() {
             textFont("ArcadeClassic");
             textSize(100);
             textStyle("bold");
-            text("Space   Kitty", width / 2, height / 2 - 200);
+            text("Space   Kitty", canvas.size.width / 2, canvas.size.height / 2 - 200);
             pop();
 
             // made by
@@ -210,7 +227,7 @@ function setGameScreens() {
             textSize(20);
             textStyle("bold");
             textAlign("center", "center");
-            text("Made   by", width / 2, 385);
+            text("Made   by", canvas.size.width / 2, 385);
             pop();
 
             //author/creator
@@ -221,7 +238,7 @@ function setGameScreens() {
             textFont("ArcadeClassic");
             textSize(30);
             textAlign("center", "center");
-            text("Adrienn   Ratonyi", width / 2, 415);
+            text("Adrienn   Ratonyi", canvas.size.width / 2, 415);
             pop();
 
             // place and year
@@ -232,7 +249,7 @@ function setGameScreens() {
             textFont("ArcadeClassic");
             textSize(18);
             textAlign("center", "center");
-            text("Jonkoping   University\n2024", width / 2, 460);
+            text("Jonkoping   University\n2024", canvas.size.width / 2, 460);
             pop();
 
             // instruction
@@ -244,7 +261,7 @@ function setGameScreens() {
             textSize(25);
             textAlign("center", "center");
             blink(500, 2, () => {
-                text("Press   SPACE   to   play", width / 2, height / 2 - 140);
+                text("Press   SPACE   to   play", canvas.size.width / 2, canvas.size.height / 2 - 140);
             });
             pop();
         },
@@ -309,7 +326,7 @@ function setGameScreens() {
             textSize(25);
             textAlign("center", "center");
             blink(500, 2, () => {
-                text("Press   R   to   restart", width / 2, height / 2 - 247);
+                text("Press   R   to   restart", canvas.size.width / 2, canvas.size.height / 2 - 247);
             });
             pop();
 
@@ -320,7 +337,7 @@ function setGameScreens() {
             textSize(50);
             textStyle("bold");
             textAlign("center", "center");
-            text("Game   Over", width / 2, 150);
+            text("Game   Over", canvas.size.width / 2, 150);
             pop();
 
             if (kittyBase.died) {
@@ -331,7 +348,7 @@ function setGameScreens() {
                 textSize(35);
 
                 textAlign("center", "center");
-                text("Kitty   didn't   survive\nthe   landing", width / 2, 225);
+                text("Kitty   didn't   survive\nthe   landing", canvas.size.width / 2, 225);
                 pop();
             } else {
 
@@ -344,7 +361,7 @@ function setGameScreens() {
                 textSize(35);
                 textStyle("bold");
                 textAlign("center", "center");
-                text("Score", width / 2, 225);
+                text("Score", canvas.size.width / 2, 225);
                 pop();
 
                 //score
@@ -353,7 +370,7 @@ function setGameScreens() {
                 textFont("ArcadeClassic");
                 textSize(25);
                 textAlign("center", "center");
-                text(score, width / 2, 255);
+                text(score, canvas.size.width / 2, 255);
                 pop();
 
                 // high score title
@@ -363,7 +380,7 @@ function setGameScreens() {
                 textSize(25);
                 textStyle("bold");
                 textAlign("center", "center");
-                text("High   Score", width / 2, 300);
+                text("High   Score", canvas.size.width / 2, 300);
                 pop();
 
                 // high score
@@ -372,7 +389,7 @@ function setGameScreens() {
                 textFont("ArcadeClassic");
                 textSize(20);
                 textAlign("center", "center");
-                text(highScore, width / 2, 330);
+                text(highScore, canvas.size.width / 2, 330);
                 pop();
             }
         }
@@ -394,25 +411,25 @@ function moon() {
     noStroke();
     //moon base
     fill(245, 245, 245);
-    ellipse(width / 2, height + 400, 1000, 1000);
+    ellipse(canvas.size.width / 2, canvas.size.height + 400, 1000, 1000);
 
     //holes
     push();
-    translate(width / 2 - 170, height - 30);
+    translate(canvas.size.width / 2 - 170, canvas.size.height - 30);
     rotate(2.9);
     fill(192, 192, 192);
     ellipse(0, 0, 90, 60);
     pop();
 
     push();
-    translate(width / 2, height);
+    translate(canvas.size.width / 2, canvas.size.height);
     rotate();
     fill(192, 192, 192);
     ellipse(0, 0, 90, 70);
     pop();
 
     push();
-    translate(width / 2 + 180, height - 20);
+    translate(canvas.size.width / 2 + 180, canvas.size.height - 20);
     rotate(0.3);
     fill(192, 192, 192);
     ellipse(0, 0, 90, 60);
@@ -514,8 +531,8 @@ class Star {
      */
     generate(base = false) {
 
-        this.x = randomRange(0, width, true);
-        this.y = randomRange(0, height, true);
+        this.x = randomRange(0, canvas.size.width, true);
+        this.y = randomRange(0, canvas.size.height, true);
         this.alpha = base ? randomRange(0, 180 * 100, true) / 100 : 0;
         this.size = randomRange(0, stars.big_probability, true) === 0 ? randomRange(stars.size.big.min, stars.size.big.max) : randomRange(stars.size.small.min, stars.size.small.max);
         this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation);
@@ -996,7 +1013,7 @@ class Bar {
             text(marker, x + 200 * marker / max, y + 32.5);
             pop();
         }
-        
+
         return this;
     }
 
