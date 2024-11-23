@@ -31,7 +31,7 @@ The player's job is to **help kitty land safely**. This means that kitty's landi
   * [Physics Classroom - Free Fall - Determining How Fast? and How Far?](https://www.physicsclassroom.com/class/1DKin/Lesson-5/How-Fast-and-How-Far)
   * [NASA - Motion of Free Falling Object](https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/motion-of-free-falling-object/)
   * **Break-down:** [ChatGPT - Distance vs Velocity in Free Fall](https://chatgpt.com/share/673fd095-c988-8000-ad42-54bda7453b23)
-* **Velocity change with acceleration:** _(note: $`t`$ from $`v=v_0+a⋅t`$ as $`t=\frac{1}{FPS}=\frac{1}{30}`$ ⇒ $`t`$ is constant)_
+* **Velocity change with acceleration:** _(note: $`t`$ from $`v=v_0+a⋅t`$ was removed as $`t=\frac{1}{FPS}=\frac{1}{30}`$ ⇒ $`t`$ is constant)_
   * [Wikipedia - Acceleration](https://en.wikipedia.org/wiki/Acceleration),
   * [Institute of Physics - Acceleration changes velocity](https://spark.iop.org/acceleration-changes-velocity)
   * **Break-down:** [ChatGPT - Velocity and Acceleration Relationship](https://chatgpt.com/share/673fdb0c-e154-8000-a245-8365c94f04c3)
