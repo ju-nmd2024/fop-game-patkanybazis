@@ -1,5 +1,5 @@
 /**
- *
+ * the settings of the "virtual canvas" (which is scaled)
  * @type {{size: {width: number, height: number}}}
  */
 let canvas = {};
@@ -155,12 +155,7 @@ function setup() {
 
     resetSettings();
     setGameScreens();
-
-
-    // generating the first stars
-    for (let i = 0; i < stars.number; i++) {
-        stars.collection.push(new Star().generate(true));
-    }
+    Star.baseGeneration();
 
 }
 
@@ -397,7 +392,7 @@ function setGameScreens() {
                 pop();
             }
         }
-    }
+    };
 }
 
 /**
@@ -542,6 +537,15 @@ class Star {
         this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation);
         return this;
 
+    }
+
+    /**
+     * Generates the base stars
+     */
+    static baseGeneration() {
+        for (let i = 0; i < stars.number; i++) {
+            stars.collection.push(new Star().generate(true));
+        }
     }
 
     /**
@@ -842,7 +846,7 @@ class Character {
             function happyEye(x, y, size) {
                 push();
                 stroke(255, 255, 0);
-                strokeWeight(4)
+                strokeWeight(4);
                 beginShape();
                 vertex(x - 12.5 * size, y);
                 bezierVertex(x - 12.5 * size, y, x, y - 25 * size, x + 12.5 * size, y);
