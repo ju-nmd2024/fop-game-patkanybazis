@@ -2,7 +2,7 @@
  * the settings of the "virtual canvas" (which is scaled)
  * @type {{size: {width: number, height: number}}}
  */
-let canvas = {};
+let gameCanvas = {};
 /**
  * the speed of the object
  * @type {number}
@@ -77,7 +77,7 @@ let kitty;
 
 /**
  * the base settings of kitty
- * @type {{x: number, y: number, died: boolean}}
+ * @type {{x: number, y: number, died: boolean | null}}
  */
 let kittyBase = {};
 
@@ -94,7 +94,7 @@ let border = {};
 let screen = {};
 
 function setup() {
-    canvas = {
+    gameCanvas = {
         size: {
             width: 900,
             height: 600
@@ -105,7 +105,7 @@ function setup() {
     frameRate(30); // the plugin uses 30 fps, p5.js editor uses 60, but I want my fps to be stable everywhere
 
     border = {
-        ground: canvas.size.height - 100,
+        ground: gameCanvas.size.height - 100,
         ceiling: 95
     };
 
@@ -134,23 +134,23 @@ function setup() {
                 max: 10
             }
         },
-        big_probability: 150, // 1 in 150 stars will be big
+        big_rarity: 150, // 1 in 150 stars will be big
         speed: {
-            measure: 1.5,
+            base: 1.5,
             fluctuation: 0.5
         },
         collection: []  // the collection of stars
     };
     // the values kitty resets to
     kittyBase = {
-        x: canvas.size.width / 2,
+        x: gameCanvas.size.width / 2,
         y: (border.ground + border.ceiling) / 2,
         died: null
     };
-    // here, I generate the bars
+    // generating the bars
     bars = {
         fuel: new Bar("Fuel", 25, 40, "rainbow_gr", 100, 1, [5, 10, 25, 50, 75]),
-        speed: new Bar("Speed", canvas.size.width - 225, 40, "rainbow_rg", 60, 1, [fatal_v * 10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
+        speed: new Bar("Speed", gameCanvas.size.width - 225, 40, "rainbow_rg", 60, 1, [fatal_v * 10, 30]) // fatal_v helps indicate the point in speed that is still safe for landing, and we need absolute values for speed as it can be negative in this project
     };
 
     resetSettings();
@@ -183,12 +183,12 @@ function blink(milliseconds, every, todo) {
 
 function draw() {
     background_elements();
-    translate(((windowWidth - canvas.size.width) / 2), 0); // to centre the canvas
+    translate(((windowWidth - gameCanvas.size.width) / 2), 0); // to centre the canvas
     push();
     // console.log(`${((windowWidth - canvas.size.width) / 2)}\n${windowWidth}\n${canvas.size.width}`)
-    translate(canvas.size.width / 2, 0); // to scale from the centre (idk why it doesn't need the y)
-    scale(windowHeight / canvas.size.height);
-    translate(-canvas.size.width / 2, 0); // reverting the translation for the "scaling"
+    translate(gameCanvas.size.width / 2, 0); // to scale from the centre (idk why it doesn't need the y)
+    scale(windowHeight / gameCanvas.size.height);
+    translate(-gameCanvas.size.width / 2, 0); // reverting the translation for the "scaling"
     screen.screens[screen.name]();
     pop();
 }
@@ -216,7 +216,7 @@ function setGameScreens() {
             textFont("ArcadeClassic");
             textSize(100);
             textStyle("bold");
-            text("Space   Kitty", canvas.size.width / 2, canvas.size.height / 2 - 200);
+            text("Space   Kitty", gameCanvas.size.width / 2, gameCanvas.size.height / 2 - 200);
             pop();
 
             // made by
@@ -228,7 +228,7 @@ function setGameScreens() {
             textSize(20);
             textStyle("bold");
             textAlign("center", "center");
-            text("Made   by", canvas.size.width / 2, 385);
+            text("Made   by", gameCanvas.size.width / 2, 385);
             pop();
 
             //author/creator
@@ -239,7 +239,7 @@ function setGameScreens() {
             textFont("ArcadeClassic");
             textSize(30);
             textAlign("center", "center");
-            text("Adrienn   Ratonyi", canvas.size.width / 2, 415);
+            text("Adrienn   Ratonyi", gameCanvas.size.width / 2, 415);
             pop();
 
             // place and year
@@ -250,7 +250,7 @@ function setGameScreens() {
             textFont("ArcadeClassic");
             textSize(18);
             textAlign("center", "center");
-            text("Jonkoping   University\n2024", canvas.size.width / 2, 460);
+            text("Jonkoping   University\n2024", gameCanvas.size.width / 2, 460);
             pop();
 
             // instruction
@@ -262,12 +262,12 @@ function setGameScreens() {
             textSize(25);
             textAlign("center", "center");
             blink(500, 2, () => {
-                text("Press   SPACE   to   play", canvas.size.width / 2, canvas.size.height / 2 - 140);
+                text("Press   SPACE   to   play", gameCanvas.size.width / 2, gameCanvas.size.height / 2 - 140);
             });
             pop();
         },
         game: () => {
-            dialDisplays();
+            barDisplays();
             kitty.flame = keyIsDown(32) && fuel.level > 0;
             kitty.draw();
             moon();
@@ -293,14 +293,17 @@ function setGameScreens() {
             } else if (kitty.y === border.ground) {
                 land_v = Math.floor(speed * 100) / 100;
                 if (land_v <= fatal_v) {
-                    score = Math.floor((fuel.level + 1000 / land_v));
+                    score = Math.floor(fuel.level + (1000 / land_v));
+                    if (score > highScore) {
+                        highScore = score;
+                        storeItem('space kitty high score', highScore);
+                    }
                     kittyBase.died = false;
                 } else {
                     score = 0;
                     kittyBase.died = true;
                 }
-                highScore = max(score, highScore);
-                storeItem('space kitty high score', highScore);
+
                 screen.name = "gameOver";
             }
             // in case kitty goes over the top or below the ground, we need to correct it by pulling it back
@@ -311,7 +314,7 @@ function setGameScreens() {
             }
         },
         gameOver: () => {
-            dialDisplays();
+            barDisplays();
             kitty.flame = false; // when kitty has landed, the rocket is no longer on obviously
             kitty.draw();
             moon();
@@ -325,7 +328,7 @@ function setGameScreens() {
             textSize(25);
             textAlign("center", "center");
             blink(500, 2, () => {
-                text("Press   R   to   restart", canvas.size.width / 2, canvas.size.height / 2 - 247);
+                text("Press   R   to   restart", gameCanvas.size.width / 2, gameCanvas.size.height / 2 - 247);
             });
             pop();
 
@@ -336,7 +339,7 @@ function setGameScreens() {
             textSize(50);
             textStyle("bold");
             textAlign("center", "center");
-            text("Game   Over", canvas.size.width / 2, 150);
+            text("Game   Over", gameCanvas.size.width / 2, 150);
             pop();
 
             if (kittyBase.died) {
@@ -345,9 +348,8 @@ function setGameScreens() {
                 fill("white");
                 textFont("ArcadeClassic");
                 textSize(35);
-
                 textAlign("center", "center");
-                text("Kitty   didn't   survive\nthe   landing", canvas.size.width / 2, 225);
+                text("Kitty   didn't   survive\nthe   landing", gameCanvas.size.width / 2, 225);
                 pop();
             } else {
 
@@ -360,7 +362,7 @@ function setGameScreens() {
                 textSize(35);
                 textStyle("bold");
                 textAlign("center", "center");
-                text("Score", canvas.size.width / 2, 225);
+                text("Score", gameCanvas.size.width / 2, 225);
                 pop();
 
                 //score
@@ -369,7 +371,7 @@ function setGameScreens() {
                 textFont("ArcadeClassic");
                 textSize(25);
                 textAlign("center", "center");
-                text(score, canvas.size.width / 2, 255);
+                text(score, gameCanvas.size.width / 2, 255);
                 pop();
 
                 // high score title
@@ -379,7 +381,7 @@ function setGameScreens() {
                 textSize(25);
                 textStyle("bold");
                 textAlign("center", "center");
-                text("High   Score", canvas.size.width / 2, 300);
+                text("High   Score", gameCanvas.size.width / 2, 300);
                 pop();
 
                 // high score
@@ -388,7 +390,7 @@ function setGameScreens() {
                 textFont("ArcadeClassic");
                 textSize(20);
                 textAlign("center", "center");
-                text(highScore, canvas.size.width / 2, 330);
+                text(highScore, gameCanvas.size.width / 2, 330);
                 pop();
             }
         }
@@ -410,25 +412,25 @@ function moon() {
     noStroke();
     //moon base
     fill(245, 245, 245);
-    ellipse(canvas.size.width / 2, canvas.size.height + 400, 1000, 1000);
+    ellipse(gameCanvas.size.width / 2, gameCanvas.size.height + 400, 1000, 1000);
 
     //holes
     push();
-    translate(canvas.size.width / 2 - 170, canvas.size.height - 30);
+    translate(gameCanvas.size.width / 2 - 170, gameCanvas.size.height - 30);
     rotate(2.9);
     fill(192, 192, 192);
     ellipse(0, 0, 90, 60);
     pop();
 
     push();
-    translate(canvas.size.width / 2, canvas.size.height);
+    translate(gameCanvas.size.width / 2, gameCanvas.size.height);
     rotate();
     fill(192, 192, 192);
     ellipse(0, 0, 90, 70);
     pop();
 
     push();
-    translate(canvas.size.width / 2 + 180, canvas.size.height - 20);
+    translate(gameCanvas.size.width / 2 + 180, gameCanvas.size.height - 20);
     rotate(0.3);
     fill(192, 192, 192);
     ellipse(0, 0, 90, 60);
@@ -442,7 +444,7 @@ function moon() {
 function keyPressed() {
     switch (keyCode) {
         case 32: // SPACE
-            switch (screen.name) {
+            switch (screen.name) { // checks the current screen
                 case "menu":
                     resetSettings();
                     screen.name = "game";
@@ -452,8 +454,8 @@ function keyPressed() {
         case 82: // R
             switch (screen.name) {
                 case "gameOver":
-                    screen.name = "game";
                     resetSettings();
+                    screen.name = "game";
                     break;
                 case "game":
                     resetSettings();
@@ -475,7 +477,7 @@ function keyPressed() {
 /**
  * Displays the fuel and speed bars
  */
-function dialDisplays() {
+function barDisplays() {
     bars.fuel.set(fuel.level);
     bars.speed.set(Math.abs(speed * 10));
     bars.fuel.draw();
@@ -505,26 +507,26 @@ function randomRange(min, max, whole = false) {
  * @property {number} x - x position
  * @property {number} y - y position
  * @property {number} size - size of the star
- * @property {number} alpha - colour alpha
+ * @property {number} age - age of the star (between 0 and 180)
  * @property {number} speed - speed of ageing
  */
 class Star {
     x;
     y;
     size;
-    alpha;
+    age;
     speed;
 
-    constructor(x, y, size, alpha, speed) {
+    constructor(x, y, size, age, speed) {
         this.x = x;
         this.y = y;
         this.size = size;
-        this.alpha = alpha;
+        this.age = age;
         this.speed = speed;
     }
 
     /**
-     * Generates the settings for a star
+     * Generates a star
      * @param base {boolean} whether the star is a base star or not
      * @returns {Star} the star with the generated settings
      */
@@ -532,9 +534,13 @@ class Star {
 
         this.x = Math.random();
         this.y = Math.random();
-        this.alpha = base ? randomRange(0, 180 * 100, true) / 100 : 0;
-        this.size = randomRange(0, stars.big_probability, true) === 0 ? randomRange(stars.size.big.min, stars.size.big.max) : randomRange(stars.size.small.min, stars.size.small.max);
-        this.speed = stars.speed.measure + randomRange(0, stars.speed.fluctuation);
+        this.age = base ?
+            randomRange(0, 180 * 100, true) / 100 :
+            0;
+        this.size = randomRange(1, stars.big_rarity, true) === 1 ?
+            randomRange(stars.size.big.min, stars.size.big.max) :
+            randomRange(stars.size.small.min, stars.size.small.max);
+        this.speed = stars.speed.base + randomRange(0, stars.speed.fluctuation);
         return this;
 
     }
@@ -553,14 +559,14 @@ class Star {
      */
     static display() {
         for (let i = 0; i < stars.number; i++) {
-            if (Math.round(stars.collection[i].alpha) >= 180) { //the rounding is there because sometimes the results are a bit off for no reason
+            if (Math.round(stars.collection[i].age) >= 180) { //the rounding is there because sometimes the results are a bit off for no reason
                 stars.collection[i] = new Star().generate(); //replacing dead star
             } else {
-                stars.collection[i].alpha += stars.collection[i].speed;
+                stars.collection[i].age += stars.collection[i].speed;
             }
             push();
             noStroke();
-            fill(255, 255, 255, Math.sin(stars.collection[i].alpha * Math.PI / 180) * 255); //converting to radians
+            fill(255, 255, 255, Math.sin(stars.collection[i].age * Math.PI / 180) * 255); //converting to radians
             stars.collection[i].draw();
             pop();
         }
@@ -569,7 +575,7 @@ class Star {
     /**
      * Draws the star
      */
-    draw(x = this.x * width, y = this.y * height, size = this.size * (height / canvas.size.height)) { // note: I specify the width and height because of the fullscreen support
+    draw(x = this.x * width, y = this.y * height, size = this.size * (height / gameCanvas.size.height)) { // note: I specify the width and height because of the fullscreen support
 
         push();
         noStroke();
