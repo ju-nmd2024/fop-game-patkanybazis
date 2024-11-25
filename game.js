@@ -65,7 +65,7 @@ let bars = {};
 
 /**
  *  the stars in the background
- * @type {{number: number, size: {small: {min: number, max: number}, big: {min: number, max: number}}, big_probability: number, speed: {measure: number, fluctuation: number}, collection: Star[]}}
+ * @type {{number: number, size: {small: {min: number, max: number}, big: {min: number, max: number}}, big_rarity: number, speed: {base: number, fluctuation: number}, collection: Star[]}}
  */
 let stars = {};
 
