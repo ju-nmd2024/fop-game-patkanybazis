@@ -268,14 +268,14 @@ function setGameScreens() {
         },
         game: () => {
             barDisplays();
-            kitty.flame = keyIsDown(32) && fuel.level > 0;
+            kitty.flame = keyIsDown(32) && fuel.level > 0; // key 32 = space
             kitty.draw();
             moon();
 
-
+            // setup the next frame
             if (kitty.y >= border.ceiling && kitty.y < border.ground) {
                 if (kitty.y === border.ceiling) {
-                    speed = bounce * g;
+                    speed = bounce * g; // boink
                 }
 
                 if (keyIsDown(32) && fuel.level > 0) {
@@ -285,13 +285,13 @@ function setGameScreens() {
                     speed += g; // the free fall formula v = g * t, but since t (or delta t) (the time between frames) is constant, changing this every frame will replace it (don't ask why, I'm not a physics girly)
                 }
 
-                if (speed > 0) {
+                if (speed > 0) { // if positive
                     kitty.y += speed ** 2; // as, when we take the square of a real number, it will be positive, but we want to maintain the polarity of the value, so I increase the position if it is positive and decrease the position if it is negative (just type "how does distance change during free fall relative to speed?" into ChatGPT, and it will tell you why we need the square of the speed, but it's because d=v^2/2g, but since g is constant, we don't bother with it)
                 } else {
                     kitty.y -= speed ** 2;
                 }
             } else if (kitty.y === border.ground) {
-                land_v = Math.floor(speed * 100) / 100;
+                land_v = Math.floor(speed * 100) / 100; // the speed is rounded to 2 decimal places (hundreds)
                 if (land_v <= fatal_v) {
                     score = Math.floor(fuel.level + (1000 / land_v));
                     if (score > highScore) {
@@ -479,7 +479,7 @@ function keyPressed() {
  */
 function barDisplays() {
     bars.fuel.set(fuel.level);
-    bars.speed.set(Math.abs(speed * 10));
+    bars.speed.set(Math.abs(speed * 10)); // absolute value is needed because the speed can't be negative irl
     bars.fuel.draw();
     bars.speed.draw();
 }
@@ -527,7 +527,7 @@ class Star {
 
     /**
      * Generates a star
-     * @param base {boolean} whether the star is a base star or not
+     * @param base {boolean} whether the star is a base/first star or not
      * @returns {Star} the star with the generated settings
      */
     generate(base = false) {
@@ -567,7 +567,7 @@ class Star {
             push();
             noStroke();
             fill(255, 255, 255, Math.sin(stars.collection[i].age * Math.PI / 180) * 255); //converting to radians
-            stars.collection[i].draw();
+            stars.collection[i].draw(); // draws the star
             pop();
         }
     }
@@ -1034,7 +1034,8 @@ class Bar {
 
     /**
      * Sets the value for the bar
-     * @param value {number} - the value of the bar    */
+     * @param value {number} - the value of the bar
+     */
     set(value) {
         this.value = value;
         return this;
